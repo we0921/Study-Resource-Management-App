@@ -2,10 +2,10 @@
 
 const { Client } = require('pg');
 const client = new Client({
-  user: 'dsaeotks',
-  host: 'jelani.db.elephantsql.com',
-  database: 'dsaeotks',
-  password: '7jCyv7wSMTQOUTHTEsRNsvjOCOLSJ6h1',
+  user: 'dststgay',
+  host: 'raja.db.elephantsql.com',
+  database: 'dststgay',
+  password: '5x7CA-QTDfAFlCNQHGfDRdBox2RC0EOd',
   port: 5432,
 });
 
