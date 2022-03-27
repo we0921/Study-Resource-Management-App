@@ -15,11 +15,15 @@ window.onload = async () => {
     data = JSON.parse(document.getElementById("data").innerText);
     console.log(data);
 
+    document.getElementById("titleheader").innerText = data.groupInfo[0].groupname;
+    document.getElementById("descheader").innerText = data.groupInfo[0].groupdesc;
+    document.getElementById("groupName").innerText = data.groupInfo[0].groupname + " - " + data.boardInfo[0].boardname;
+
     // Retrieve which page we're on
     // and how many pages of posts exist
     length = data.posts.length;
-    maxPages = Math.ceil(length / postsPerPage);
-    currentPage = Math.ceil(length / postsPerPage);
+    maxPages = Math.floor(length / postsPerPage) + 1;
+    currentPage = Math.floor(length / postsPerPage) + 1;
 
     // Change the current page
     document.getElementById("currentPageAnch").innerText = currentPage;
@@ -32,6 +36,7 @@ window.onload = async () => {
 
     showPosts();
     await setOnClicks();
+    buildNewPostForm();
 
     // Set the timeout - refreshes post content
     /*setTimeout(async () => {
@@ -50,7 +55,7 @@ function showPosts() {
         // Retrieve which page we're on
         // and how many pages of posts exist
         length = data.posts.length;
-        maxPages = Math.ceil(length / postsPerPage);
+        maxPages = Math.floor(length / postsPerPage) + 1;
 
         console.log("maxPages: " + maxPages);
         console.log("currentPage: " + currentPage);
@@ -111,12 +116,14 @@ async function setOnClicks() {
                         data.posts[i].postvotes++;
                         showPosts();
                         setOnClicks();
+                        buildNewPostForm();
                         console.log("Post voted successfully!");
                         console.log(result);
                     } else {
                         data.posts[i].postvotes--;
                         showPosts();
                         setOnClicks();
+                        buildNewPostForm();
                         console.log("Post unvoted successfully!");
                         console.log(result);
                     }
@@ -166,6 +173,7 @@ async function setOnClicks() {
                     // Show posts and set on click
                     showPosts();
                     setOnClicks();
+                    buildNewPostForm();
                 },
                 error: () => {
                     console.log("Post was unsuccessfully deleted");
@@ -173,7 +181,6 @@ async function setOnClicks() {
             });
             return false;
         });
-
     }
 }
 
@@ -196,6 +203,7 @@ async function showNext() {
     }
     showPosts();
     await setOnClicks();
+    buildNewPostForm();
 }
 async function showPrevious() {
     currentPage--;
@@ -215,6 +223,7 @@ async function showPrevious() {
     }
     showPosts();
     await setOnClicks();
+    buildNewPostForm();
 }
 
 async function refreshPage() {
@@ -248,102 +257,103 @@ async function refreshPage() {
 }
 
 function buildPost (post, email) {
-    console.log(post);
-    // Give the card an ID so that it can be referenced later (for voting/deleting)
-    // Parent card element
-    let card = document.createElement("div");
-    card.className = "list-group-item";
-    card.id = post.postid;
+    if (post !== undefined) {
+        console.log(post);
+        // Give the card an ID so that it can be referenced later (for voting/deleting)
+        // Parent card element
+        let card = document.createElement("div");
+        card.className = "list-group-item";
+        card.id = post.postid;
 
-    // The row div within the card
-    let row = document.createElement("div");
-    row.className = "row";
+        // The row div within the card
+        let row = document.createElement("div");
+        row.className = "row";
 
-    // The left column of the row - contains the post's cubvotes and the button to vote for that post
-    let scoreCol = document.createElement("div");
-    scoreCol.className = "col-1 justify-content-center";
+        // The left column of the row - contains the post's cubvotes and the button to vote for that post
+        let scoreCol = document.createElement("div");
+        scoreCol.className = "col-1 justify-content-center";
 
-    let scoreDiv = document.createElement("div");
-    scoreDiv.className = "d-inline-flex w-100 flex-fill justify-content-center"
+        let scoreDiv = document.createElement("div");
+        scoreDiv.className = "d-inline-flex w-100 flex-fill justify-content-center"
 
-    let reactButton = document.createElement("button");
-    reactButton.type = "button";
-    reactButton.className = "btn btn-primary btn-sm";
-    reactButton.id = "cubvote" + post.postid;
+        let reactButton = document.createElement("button");
+        reactButton.type = "button";
+        reactButton.className = "btn btn-primary btn-sm";
+        reactButton.id = "cubvote" + post.postid;
 
-    // TODO - Make the delete button appear only for the author of the post, admins, and moderators
-    let deleteButton = document.createElement("button");
-    deleteButton.type = "button";
-    deleteButton.className = "btn btn-danger btn-sm";
-    deleteButton.id = "delete" + post.postid;
+        // TODO - Make the delete button appear only for the author of the post, admins, and moderators
+        let deleteButton = document.createElement("button");
+        deleteButton.type = "button";
+        deleteButton.className = "btn btn-danger btn-sm";
+        deleteButton.id = "delete" + post.postid;
 
-    // Set the score in this container to the post's current score
-    let cubVoteContainer = document.createElement("small");
-    cubVoteContainer.innerText = post.postvotes;
-    cubVoteContainer.id = "postvotes" + post.postid;
+        // Set the score in this container to the post's current score
+        let cubVoteContainer = document.createElement("small");
+        cubVoteContainer.innerText = post.postvotes;
+        cubVoteContainer.id = "postvotes" + post.postid;
 
-    let reactIcon = document.createElement("i");
-    reactIcon.className="bi bi-hand-thumbs-up-fill";
+        let reactIcon = document.createElement("i");
+        reactIcon.className="bi bi-hand-thumbs-up-fill";
 
-    let delIcon = document.createElement("i");
-    delIcon.className="bi bi-trash-fill";
+        let delIcon = document.createElement("i");
+        delIcon.className="bi bi-trash-fill";
 
-    // Attach the icons to the buttons,
-    // the score to the container,
-    // and the button to the container
-    reactButton.appendChild(reactIcon);
-    deleteButton.appendChild(delIcon);
-    scoreDiv.appendChild(cubVoteContainer);
-    scoreDiv.appendChild(deleteButton);
-    scoreDiv.appendChild(reactButton);
+        // Attach the icons to the buttons,
+        // the score to the container,
+        // and the button to the container
+        reactButton.appendChild(reactIcon);
+        deleteButton.appendChild(delIcon);
+        scoreDiv.appendChild(cubVoteContainer);
+        scoreDiv.appendChild(deleteButton);
+        scoreDiv.appendChild(reactButton);
 
-    scoreCol.appendChild(scoreDiv);
+        scoreCol.appendChild(scoreDiv);
 
-    // The right column of the row - contains the post's author, date/time, and post text
-    let contentCol = document.createElement("div");
-    contentCol.className = "col-11";
+        // The right column of the row - contains the post's author, date/time, and post text
+        let contentCol = document.createElement("div");
+        contentCol.className = "col-11";
 
-    let postInfo = document.createElement("div");
-    postInfo.className = "d-inline-flex w-100 justify-content-between";
+        let postInfo = document.createElement("div");
+        postInfo.className = "d-inline-flex w-100 justify-content-between";
 
-    let userDiv = document.createElement("div");
-    let author = document.createElement("span");
-    author.style.fontWeight = "700";
-    // Make the author's name appear here from data
-    author.innerText = post.first + " " + post.last;
-    let dash = document.createElement("span");
-    dash.innerText = " - "
-    // Make the author's score appear here from data
-    let authorScore = document.createElement("span");
-    authorScore.innerText = post.uservotes;
+        let userDiv = document.createElement("div");
+        let author = document.createElement("span");
+        author.style.fontWeight = "700";
+        // Make the author's name appear here from data
+        author.innerText = post.first + " " + post.last;
+        let dash = document.createElement("span");
+        dash.innerText = " - "
+        // Make the author's score appear here from data
+        let authorScore = document.createElement("span");
+        authorScore.innerText = post.uservotes;
 
-    userDiv.appendChild(author);
-    userDiv.appendChild(dash);
-    userDiv.appendChild(authorScore);
+        userDiv.appendChild(author);
+        userDiv.appendChild(dash);
+        userDiv.appendChild(authorScore);
 
-    // Make the post's date/time appear here from data
-    let postTime = document.createElement("small");
-    postTime.innerText = post.postdate + post.posttime;
+        // Make the post's date/time appear here from data
+        let postTime = document.createElement("small");
+        postTime.innerText = post.postdate + post.posttime;
 
-    // Add the author info and post creation time
-    postInfo.appendChild(userDiv);
-    postInfo.appendChild(postTime);
+        // Add the author info and post creation time
+        postInfo.appendChild(userDiv);
+        postInfo.appendChild(postTime);
 
-    // Make the post's content appear here from data
-    let postContent = document.createElement("p");
-    postContent.innerText = post.postcontent;
+        // Make the post's content appear here from data
+        let postContent = document.createElement("p");
+        postContent.innerText = post.postcontent;
 
-    contentCol.appendChild(postInfo);
-    contentCol.appendChild(postContent);
+        contentCol.appendChild(postInfo);
+        contentCol.appendChild(postContent);
 
-    row.appendChild(scoreCol);
-    row.appendChild(contentCol);
+        row.appendChild(scoreCol);
+        row.appendChild(contentCol);
 
-    card.appendChild(row);
+        card.appendChild(row);
 
-    document.getElementById("postList").appendChild(card);
+        document.getElementById("postList").appendChild(card);
+    }
 }
-
 function buildBoardHeader (board) {
 
     // Anchor that holds the card
@@ -366,6 +376,76 @@ function buildBoardHeader (board) {
     // Put it all together
     boardAnchor.appendChild(boardName);
     boardAnchor.appendChild(boardDesc);
+
+    document.getElementById("postList").appendChild(boardAnchor);
+}
+function buildNewPostForm() {
+    // Anchor that holds the card
+    let boardAnchor = document.createElement("div");
+    boardAnchor.className = "list-group-item";
+    // Card that holds the info
+    let boardCard = document.createElement("div");
+    boardCard.className = "d-flex justify-content-end";
+
+    // Form that holds the input fields
+    let postForm = document.createElement("form");
+    postForm.id = "postForm";
+    //postForm.action = "/groupPage/" + data.groupInfo[0].groupid;
+    postForm.action = "/createPost";
+    postForm.method = "post";
+    postForm.style.width = "100%";
+
+    // Form input fields
+    //   Post content
+    let postInput = document.createElement("input");
+    postInput.name = "message";
+    postInput.className = "form-control";
+    postInput.placeholder = "Enter post text here";
+    postInput.style.width = "100%";
+    postInput.style.height = "100px";
+    //   Email
+    let emailInput = document.createElement("input");
+    emailInput.name = "email";
+    emailInput.value = data.email;
+    emailInput.style.visibility = "collapse";
+    emailInput.style.display = "none";
+    //   BoardID
+    let boardIDInput = document.createElement("input");
+    boardIDInput.name = "boardID";
+    boardIDInput.value = data.boardInfo[0].boardid;
+    boardIDInput.style.visibility = "collapse";
+    boardIDInput.style.display = "none";
+    //   GroupID
+    let groupIDInput = document.createElement("input");
+    groupIDInput.name = "groupID";
+    groupIDInput.value = data.groupInfo[0].groupid;
+    groupIDInput.setAttribute("visibility", "collapse");
+    groupIDInput.style.visibility = "collapse";
+    groupIDInput.style.display = "none";
+
+    // Label
+    let postLabel = document.createElement("div");
+    postLabel.className = "d-flex align-items-center align-self-center align-content-between"
+    //postLabel.innerText = "Submit a new post";
+    postLabel.style.width = "100%";
+
+    // Button
+    let submitButton = document.createElement("button");
+    submitButton.className = "btn btn-primary";
+    submitButton.innerText = "Submit";
+    submitButton.style.marginLeft = "10px";
+    submitButton.style.marginRight = "-10px";
+
+    postLabel.appendChild(postInput);
+    postLabel.appendChild(submitButton);
+    postForm.appendChild(postLabel);
+    postForm.appendChild(emailInput);
+    postForm.appendChild(boardIDInput);
+    postForm.appendChild(groupIDInput);
+
+    boardCard.appendChild(postForm);
+    boardAnchor.appendChild(boardCard);
+
 
     document.getElementById("postList").appendChild(boardAnchor);
 }

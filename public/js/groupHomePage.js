@@ -2,6 +2,10 @@ document.addEventListener('DOMContentLoaded', (event) => {
     console.log("about to load page!");
     addIdToForm();
     fillGroups();
+    let data = document.getElementById("group").innerHTML;
+    let obj = JSON.parse(data);
+    document.getElementById("titleheader").innerText = obj.group.groupname;
+    document.getElementById("descheader").innerText = obj.group.groupdesc;
 });
 
 socket.on('post', (newMessage) => {
@@ -73,11 +77,11 @@ function addIdToForm() {
     let obj = JSON.parse(data);
     console.log(obj);
     let postRoute = document.getElementById("groupID");
-    postRoute.value = obj.group.group_id;
-    console.log(obj.group.group_id);
+    postRoute.value = obj.group.groupid;
+    console.log(obj.group.groupid);
 
     // add to event form
-    document.getElementById("eGroupID").value = obj.group.group_id;
+    document.getElementById("eGroupID").value = obj.group.groupid;
 
     //TEMPORARY CODE FOR SHOWING OFF MESSAGING
     //TODO: create proper containers/handling for messages
@@ -100,7 +104,7 @@ function addIdToForm() {
 function fillGroups() {
     let data = document.getElementById("group").innerHTML;
     data = JSON.parse(data);
-    data.boards.forEach((b) => createBoard(b, data.group.group_id));
+    data.boards.forEach((b) => createBoard(b, data.group.groupid));
     data.events.forEach((e) => createEvent(e));
 }
 // Function to create event card
@@ -108,7 +112,7 @@ function createEvent (event) {
     console.log(event);
     
     let date = event.startdate + " " + event.starttime + " - " + event.enddate + " " + event.endtime;
-    let url = "eventHomePage/" + event.eventid;
+    let url = "/eventHomePage/" + event.eventid;
 
     let eventAnchor = document.createElement("a");
     eventAnchor.className = "list-group-item list-group-item-action";
@@ -119,7 +123,8 @@ function createEvent (event) {
 
     let eventName = document.createElement("h5");
     eventName.style.fontWeight = 600;
-    eventName.innerText = event.eventname;
+    console.log("event name: " + event.eventname);
+    eventName.innerText = "" + event.eventname;
 
     let eventDate = document.createElement("small");
     eventDate.innerText = date;
