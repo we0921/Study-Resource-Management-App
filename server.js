@@ -115,22 +115,6 @@ app.get("/home", async (req, res) => {
   }
 });
 
-// TODO - Remove?
-//  Doesn't make sense
-app.post("/home", async (req, res) => {
-  let cookies = cookieParser(req);
-  let authResult = await authenticate(cookies["email"], cookies["session"], req.ip);
-
-  if (authResult === false) {
-    // Invalid session => Back to login
-    res.clearCookie("email");
-    res.clearCookie("session");
-    res.redirect("/");
-  } else {
-    res.redirect("/group");
-  }
-});
-
 // Create group post request
 app.post("/group", async (req, res) => {
   let cookies = cookieParser(req);
@@ -452,7 +436,7 @@ app.post("/cubvotePost", async (req, res) => {
   let authResult = await authenticate(cookies["email"], cookies["session"], req.ip);
 
   // Make sure that the email in the req body is the same as the one stored in cookies
-  if (authResult === false || req.body.userID === cookies["email"]) {
+  if (authResult === false || req.body.userID !== cookies["email"]) {
     // Invalid session => Back to login
     res.clearCookie("email");
     res.clearCookie("session");
@@ -797,15 +781,18 @@ async function authenticate(email, sessionid, IP) {
       if (err) {
         printError(err, "Unable to query when authenticating " + email);
       } else
+        console.log("HELLO?");
         response.rows.forEach((row) => {
-          console.log("row: " + row);
+          console.log("row: " + row.toString());
         });
 
       let date = new Date(Date.now());
 
       if (response.rows.length === 0) {
+        console.log("Returning false");
         return false;
       } else {
+        console.log("Returning " + (response.rows[0].expires <= date.toISOString()) ? "true" : "false");
         return (response.rows[0].expires <= date.toISOString());
       }
     });
@@ -819,67 +806,69 @@ async function login(req, res) {
 
   console.log(loginEmail);
   console.log(loginPass);
-    // Set up the query
-    const query = "SELECT email, password FROM users WHERE email = $1 AND password = $2";
-    const values = [loginEmail, loginPass];
+  // Set up the query
+  const query = "SELECT email, password FROM users WHERE email = $1 AND password = $2";
+  const values = [loginEmail, loginPass];
 
-    client.query(query, values, (err, response) => {
-      if (err) {
-        printError(err, "1");
+  client.query(query, values, (err, response) => {
+    if (err) {
+      printError(err, "1");
+    } else {
+      // If the given credentials don't exist in the database
+      if (response.rows.length === 0) {
+        let login_reg_status = {
+          status: "login-fail"
+        };
+        res.status(401).json({status: login_reg_status});
       } else {
-        // If the given credentials don't exist in the database
-        if (response.rows.length === 0) {
-          let login_reg_status = {
-            status: "login-fail"
-          };
-          res.status(401).json({status: login_reg_status});
-        } else {
-          // User exists in the database
-          // => Delete any sessions with the current IP address
-          const query = "DELETE FROM session WHERE ip = $1 AND email = $2";
-          const values = [req.ip, loginEmail];
+        // User exists in the database
+        // => Delete any sessions with the current IP address
+        const query = "DELETE FROM session WHERE ip = $1 AND email = $2";
+        const values = [req.ip, loginEmail];
 
-          client.query(query, values, (err, response) => {
-            if (err) {
-              printError(err, "2");
-            } else {
-              // Create a new session for this login
-              uid(18, function (err, sessionID) {
-                if (err) printError(err, "Error creating session ID:");
-                else {
-                  const query = "INSERT INTO session VALUES($1, $2, $3, to_timestamp($4), to_timestamp($5))";
-                  const values = [req.ip, sessionID, loginEmail, (Date.now() / 1000), (Date.now() / 1000) + 1209600];
+        client.query(query, values, async (err, response) => {
+          if (err) {
+            printError(err, "2");
+          } else {
+            // Create a new session for this login
+            let sessionID = await uid(18).then((e) => {
+              return e;
+            });
 
-                  console.log(req.ip);
+            const query = "INSERT INTO session VALUES($1, $2, $3, to_timestamp($4), to_timestamp($5))";
+            const values = [req.ip, sessionID, loginEmail, (Date.now() / 1000), (Date.now() / 1000) + 1209600];
 
-                  // Store the session in the database
-                  client.query(query, values, (err, response) => {
-                    if (err) {
-                      printError(err, "3");
-                    } else {
-                      // Successfully stored in database => store as cookie
-                      res.cookie("session", sessionID, {expires: new Date(Date.now() + 1209600000), secure: true});
-                      res.cookie("email", loginEmail, {secure: true});
-                      app.use(session({
-                        secret: "z$C&F)J@NcRfUjXnZr4u7x!A%D*G-KaPdSgVkYp3s5v8y/B?E(H+MbQeThWmZq4t7w9z$C&F)J@NcRfUjXn2r5u8x/A%D*G-KaPdSgVkYp3s6v9y$B&E(H+MbQeThWmZq4t7w!z%C*F-JaNcRfUjXn2r5u8x/A?D(G+KbPeSgVkYp3s6v9y$B&E)H@McQfTjWmZq4t7w!z%C*F-JaNdRgUkXp2r5u8x/A?D(G+KbPeShVmYq3t6v9y$B&E)H@McQ",
-                        name: "session",
-                        genid: () => {
-                          return sessionID;
-                        }
-                      }));
+            console.log(req.ip);
 
-                      // Redirect to the home page
-                      res.redirect("/home");
-                    }
-                  })
-                }
-              });
-            }
-          });
-        }
+            // Store the session in the database
+            client.query(query, values, (err, response) => {
+              if (err) {
+                printError(err, "3");
+              } else {
+                // Successfully stored in database => store as cookie
+                res.cookie("session", sessionID, {expires: new Date(Date.now() + 1209600000), secure: true});
+                res.cookie("email", loginEmail, {secure: true});
+                /*app.use(session({
+                  secret: "z$C&F)J@NcRfUjXnZr4u7x!A%D*G-KaPdSgVkYp3s5v8y/B?E(H+MbQeThWmZq4t7w9z$C&F)J@NcRfUjXn2r5u8x/A%D*G-KaPdSgVkYp3s6v9y$B&E(H+MbQeThWmZq4t7w!z%C*F-JaNcRfUjXn2r5u8x/A?D(G+KbPeSgVkYp3s6v9y$B&E)H@McQfTjWmZq4t7w!z%C*F-JaNdRgUkXp2r5u8x/A?D(G+KbPeShVmYq3t6v9y$B&E)H@McQ",
+                  name: "session",
+                  genid: () => {
+                    return sessionID;
+                  }
+                }));*/
+
+                // Redirect to the home page
+                console.log("about to send session!: " + sessionID);
+                res.redirect("/home");
+              }
+            })
+          }
+        });
+        //console.log("temp: " + temp);
       }
-    });
-  }
+    }
+  });
+
+}
 async function register(req, res) {
     // Grab the register info
     let regEmail = req.body.registerEmail;
@@ -1019,14 +1008,14 @@ function displayBoard(req, res, boardID, groupID, email) {
                       console.log(r);
                       userInfo[r.postowner] = r.uservotes;
                     })*/
-
+                    userInfo = response.rows;
                     console.log(userInfo);
 
                     let combinedPostScoreData = [];
                     let index = 0;
                     userInfo.forEach((d) => {
                       combinedPostScoreData[index] = {
-                        email: d.email,
+                        email: d.postowner,
                         first: d.first,
                         last: d.last,
                         uservotes: d.uservotes,
@@ -1453,7 +1442,7 @@ function showInvites(email, res) {
 
       // getting the events they've been invited to // can change
       const query = "WITH eventsInvited AS (SELECT * FROM attend WHERE email = $1 and attending = false) " +
-            "SELECT * FROM event_ natural join eventsInvited";
+            "SELECT * FROM event natural join eventsInvited";
         client.query(query, [email], (err, response) => {
           if (err) printError(err, "Error retrieving event invitations");
           else {
@@ -1484,44 +1473,49 @@ function showInvites(email, res) {
 // [DONE] Updated changePostVote
 // Add or remove a user's vote for a post
 function changePostVote(req, res) {
-    let email = req.body.userID;
-    let postid = req.body.postID;
+  let email = req.body.userID;
+  let postid = req.body.postID;
 
-    // Check if user has already voted
-    let query =
-          "SELECT * " +
-          "FROM cubvoted " +
-          "WHERE email = $1 AND postid = $2";
-    client.query(query, [email, postid], (err, response) => {
-      if (err) {
-          printError(err, "Error retrieving vote status (001)");
+  console.log("changePostVote email: " + email);
+
+  // Check if user has already voted
+  let query =
+      "SELECT * " +
+      "FROM cubvoted " +
+      "WHERE email = $1 AND postid = $2";
+  client.query(query, [email, postid], (err, response) => {
+    if (err) {
+      printError(err, "Error retrieving vote status (001)");
+    } else {
+      //User didn't upvote, insert their vote into cubvoted
+      if (response.rows.length === 0) {
+        console.log("USER DIDNT UPVOTE");
+        let query =
+            "INSERT INTO cubvoted (postid, email) VALUES($1, $2)";
+        client.query(query, [postid, email], (err, response) => {
+          if (err) {
+            printError(err, "Error adding vote (002)");
+            res.status(400);
+          } else {
+            res.status(200); //.send({cubvote: true});
+          }
+        });
       } else {
-        //User didn't upvote, insert their vote into cubvoted
-        if (response.rows.length === 0) {
-          let query =
-                "INSERT INTO cubvoted (postid, email) VALUES($1, $2)";
-          client.query(query, [postid, email], (err, response) => {
-            if (err) {
-              printError(err, "Error adding vote (002)");
-              res.status(400);
-            } else {
-              res.status("200").send({cubvote: true});
-            }
-          });
-        } else {
+        console.log("USER ALREADY VOTED");
         // User has already voted, delete their vote from cubvoted
-          query = "DELETE FROM cubvoted WHERE postid = $1 AND email = $2";
-          client.query(query, [postid, email], (err, response) => {
-            if (err) {
-              printError(err, "Error removing vote for post")
-            } else {
-              res.status("200").send({cubvote: false});
-            }
-          });
-        }
+        query = "DELETE FROM cubvoted WHERE postid = $1 AND email = $2";
+        client.query(query, [postid, email], (err, response) => {
+          if (err) {
+            printError(err, "Error removing vote for post")
+          } else {
+            res.status(201); //.send({cubvote: false});
+          }
+        });
       }
-    });
-  }
+    }
+  });
+  res.status(403); //.send({cubvote: false});
+}
 
 // [DONE] Inserts a tag into the tag table and adds it to the group
 async function createTag(tagName, groupID) {
