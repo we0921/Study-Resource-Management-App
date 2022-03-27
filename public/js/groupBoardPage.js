@@ -69,11 +69,11 @@ function showPosts() {
         console.log(end);
 
         // Prevent out-of-bounds errors by using whichever comes sooner
-        end = Math.min(end, length - 1);
+        end = Math.min(end, length);
 
         // Build the posts
         for (let i = begin; i < end; i++) {
-            buildPost(data.posts[i], data.session);
+            buildPost(data.posts[i], data.email);
         }
 }
 
@@ -85,7 +85,7 @@ async function setOnClicks() {
     let end = begin + (postsPerPage - 1);
 
     // Prevent out-of-bounds errors by using whichever comes sooner
-    end = Math.min(end, length - 1);
+    end = Math.min(end, length);
 
     // Iterate through the posts
     for (let i = begin; i < end; i++) {
@@ -97,7 +97,7 @@ async function setOnClicks() {
         let groupID = args[args.length - 3];
         let boardID = args[args.length - 1];
         let postID = data.posts[i].postid;
-        let userID = data.session;
+        let userID = data.email;
 
         // Set cubvote click functions
         $('#' + cubvoteID).click(function (e) {
@@ -111,7 +111,29 @@ async function setOnClicks() {
                     postID: postID,
                     userID: userID
                 },
-                success: (result) => {
+                statusCode: {
+                    200: function() {
+                        data.post[i].postvotes++;
+                        showPosts();
+                        setOnClicks();
+                        buildNewPostForm();
+                        console.log("Post voted successfully!");
+                    },
+                    201: function() {
+                        data.posts[i].postvotes--;
+                        showPosts();
+                        setOnClicks();
+                        buildNewPostForm();
+                        console.log("Post unvoted successfully!");
+                    },
+                    400: function() {
+                        console.log("Post voted unsuccessfully!");
+                    },
+                    403: function() {
+                        console.log("The whole thing went wrong");
+                    },
+                }
+                /*success: (result) => {
                     if (result.cubvote) {
                         data.posts[i].postvotes++;
                         showPosts();
@@ -130,7 +152,7 @@ async function setOnClicks() {
                 },
                 error: () => {
                     console.log("Post vote was unsuccessfully sent");
-                }
+                }*/
             });
             return false;
         });
