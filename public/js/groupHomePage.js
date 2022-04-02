@@ -1,59 +1,63 @@
+let data;
+let socket;
+
 document.addEventListener('DOMContentLoaded', (event) => {
-    console.log("about to load page!");
-    addIdToForm();
+    data = JSON.parse(document.getElementById("group").innerText);
+    document.getElementById("titleheader").innerText = data.group.groupname;
+    document.getElementById("descheader").innerText = data.group.groupdesc;
+    console.log(data);
     fillGroups();
-    let data = document.getElementById("group").innerHTML;
-    let obj = JSON.parse(data);
-    document.getElementById("titleheader").innerText = obj.group.groupname;
-    document.getElementById("descheader").innerText = obj.group.groupdesc;
+
+    // Set up the socket
+    socket = io();
+    // join the room for this group
+    socket.emit('connection')
+    // socket.join(data.group.groupID);
+
+    socket.on("newEvent", async (event) => {
+        console.log("Event received");
+        console.log("Eventname: " + event.eventname);
+        data.events.push(event);
+        fillGroups();
+    })
+
 });
 
-socket.on('post', (newMessage) => {
-   console.log(newMessage);
-});
-
-socket.on('invitedToGroup', (invObj) => {
-    console.log(invObj);
-});
-$('#tempForm').click(function (e) {
+// Onclick to create a board
+$('#createBoard').click(function (e) {
     e.preventDefault();
-    let msg = document.getElementById("messageTemp").value;
-    let userEmail = document.getElementById("emailTemp").value;
-    let bId = document.getElementById("boardIDTemp").value;
-    let gId = document.getElementById("groupIDTemp").value;
+    let boardName = document.getElementById("boardName").value;
+    let boardDesc = document.getElementById("boardDesc").value;
+
+
     $.ajax({
         type: 'POST',
-        url: '/groupPageCreatePost/1',
+        url: '/addBoard',
         data: {
-            message: msg,
-            email: userEmail,
-            boardID: bId,
-            groupID: gId
+            boardName: boardName,
+            boardDesc: boardDesc,
+            groupID: data.group.groupid
         },
-        success: (result) => {
-            console.log("Message successfully sent to the server and returned!");
-            console.log(result);
+        success: () => {
+            console.log("Board created successfully");
         },
         error: () => {
-            console.log("Message was not successfully sent and/or returned!");
+            console.log("Board not created");
         }
     });
-    return false;
 });
-
+// Onclick to send an invite
 $('#inviteButton').click(function (e) {
     e.preventDefault();
     let inviteEmail = document.getElementById("inviteEmailInvite").value;
-    let userEmail = document.getElementById("userEmailInvite").value;
-    let groupID = document.getElementById("groupIDInvite").value;
     let reqTypeInvite = document.getElementById("reqTypeInvite").value;
     $.ajax({
         type: 'POST',
         url: '/groupInviteUser',
         data: {
             inviteEmail: inviteEmail,
-            userEmail: userEmail,
-            groupID: groupID,
+            userEmail: data.email,
+            groupID: data.group.groupid,
             reqTypeInvite
         },
         success: (result) => {
@@ -66,45 +70,68 @@ $('#inviteButton').click(function (e) {
     });
     return false;
 });
+// Onclick to create an event
+$('#createEvent').click(function (e) {
+    e.preventDefault();
+    let eventName = document.getElementById("eventName").value;
+    let eventDesc = document.getElementById("eventDesc").value;
+    let datetimes = document.getElementById("datetimes").value;
 
-function userInvited(data) {
+
+    $.ajax({
+        type: 'POST',
+        url: '/createEvent',
+        data: {
+            eventName: eventName,
+            eventDesc: eventDesc,
+            datetimes: datetimes,
+            groupID: data.group.groupid
+        },
+        statusCode: {
+            200: function() {
+                document.getElementById("eventName").value = "";
+                document.getElementById("eventDesc").value = "";
+                document.getElementById("eventClose").click();
+            }
+        }
+    });
+});
+// Onclick to create a tag
+$('#addTag').click(function (e) {
+    e.preventDefault();
+    let tagname = document.getElementById("tagnameCreate").value;
+
+
+    $.ajax({
+        type: 'POST',
+        url: '/createTag',
+        data: {
+            tagname: tagname,
+            groupID: data.group.groupid,
+        },
+        success: () => {
+            console.log("Tag added successfully");
+        },
+        error: () => {
+            console.log("Tag not added!");
+        }
+    });
+});
+
+
+/*function userInvited(data) {
     console.log(data);
     //todo: display notification to user
-}
+}*/
 
-function addIdToForm() {
-    let data =document.getElementById("group").innerHTML;
-    let obj = JSON.parse(data);
-    console.log(obj);
-    let postRoute = document.getElementById("groupID");
-    postRoute.value = obj.group.groupid;
-    console.log(obj.group.groupid);
 
-    // add to event form
-    document.getElementById("eGroupID").value = obj.group.groupid;
-
-    //TEMPORARY CODE FOR SHOWING OFF MESSAGING
-    //TODO: create proper containers/handling for messages
-    let email = document.getElementById("emailTemp");
-    let boardID = document.getElementById("boardIDTemp");
-    let groupID = document.getElementById("groupIDTemp");
-    let inviteGroupID = document.getElementById("groupIDInvite");
-    let userEmailInvite = document.getElementById("userEmailInvite");
-    let reqTypeInvite = document.getElementById("reqTypeInvite");
-    let groupIDCreate = document.getElementById("groupIDCreate");
-
-    groupIDCreate.value = 1;
-    reqTypeInvite.value = "userInviteGroup";
-    inviteGroupID.value = 1;
-    userEmailInvite.value = "john@joe";
-    email.value = "john@joe";
-    boardID.value = 40;
-    groupID.value = 1;
-}
 function fillGroups() {
-    let data = document.getElementById("group").innerHTML;
-    data = JSON.parse(data);
-    data.boards.forEach((b) => createBoard(b, data.group.groupid));
+    // Wipe the lists
+    document.getElementById("eventList").innerHTML = "";
+    document.getElementById("boardList").innerHTML = "";
+
+    // Populate the lists
+    data.boards.forEach((b) => createBoard(b));
     data.events.forEach((e) => createEvent(e));
 }
 // Function to create event card
@@ -146,14 +173,14 @@ function createEvent (event) {
     document.getElementById("eventList").appendChild(eventAnchor);
 }
 
-function createBoard (board, groupID) {
+function createBoard (board) {
 
     console.log(board);
 
     // Anchor that holds the card
     let boardAnchor = document.createElement("a");
     boardAnchor.className = "list-group-item list-group-item-action";
-    boardAnchor.href = "/groupBoardPage/" + groupID + "/" + board.boardid;
+    boardAnchor.href = "/groupBoardPage/" + data.group.groupid + "/" + board.boardid;
 
     // Card that holds the info
     let boardCard = document.createElement("div");
