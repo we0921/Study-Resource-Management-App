@@ -58,5 +58,29 @@
     <script type="text/javascript" src="/js/groupBoardPage.js"></script>
     <script type="text/javascript" src="/js/jquery-3.6.0.min.js"></script>
     <script type="text/javascript" src="/js/bootstrap.min.js"></script>
+    <script src="https://cdn.socket.io/4.4.1/socket.io.min.js"></script>
+    <script>
+        /*let socket = io();
+        socket.emit("connection");
+
+        socket.on("newMessage", (d)=> {
+            console.log("RECEIVED SOMETHING");
+            if (d.type === "changeVote") {
+                console.log("VOTE RECEIVED");
+                onPostVote(d);
+            } else if (d.type === "newMessage") {
+                console.log("MESSAGE RECEIVED")
+                onNewPost(d);
+            }
+        });
+
+        socket.on("connect_error", (err) => {
+           console.log("Connection error: " + err);
+        });
+
+        socket.on("disconnect", (err) => {
+            console.log("Disconnect: " + err);
+        })*/
+    </script>
 </body>
 </html>
