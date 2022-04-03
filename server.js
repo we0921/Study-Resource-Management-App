@@ -146,7 +146,7 @@ router.get("/home", async (req, res) => {
                       groups: groups,
                       events: events
                     }
-                    console.log(obj);
+                    //console.log(obj);
                     res.render("homePage", {sObj: JSON.stringify(obj), obj: obj, email: cookies["email"]});
                   }
                 });
@@ -176,7 +176,7 @@ router.post("/group", async (req, res) => {
   // Check to see if the given values exist in the session table
   client.query(query, values, async (err, response) => {
     if (err) {
-      printError(err, "Unable to query when authenticating " + email);
+      printError(err, "Unable to query when authenticating " + cookies["email"]);
       authResult = false;
     } else {
       if (response.rows.length !== 0) {
@@ -990,17 +990,50 @@ router.post("/addGroupTag", async (req, res) => {
         const query = "SELECT leader FROM group_ WHERE groupid = $1";
         client.query(query, [req.body.groupID], async (err, response) => {
           if (err) {
-            printError(err, "Error validating leader");
+            printError(err, "Error validating leader (001)");
             res.status(403);
           }
           if (response.rows.length !== 0) {
             if (response.rows[0].leader === cookies["email"]) {
-              let statusCode = await addGroupTag(req.body.tagName, req.body.groupID);
-              res.status(statusCode);
+              console.log("User is leader");
+              // The current user is authenticated and the leader of the group
+              if (req.body.tagname.toLowerCase() === "group" ||
+                  req.body.tagname.toLowerCase() === "extracurricular" ||
+                  req.body.tagname.toLowerCase() === "other") {
+                console.log("Cannot add a category tag! (002)");
+                res.status(400);
+              } else {
+                console.log("Valid tag");
+                const query = "SELECT * FROM grouptags WHERE groupid = $1";
+                client.query(query, [req.body.groupID], (err, response) => {
+                  if (err) {
+                    printError(err, "Error retrieving group tags (003)");
+                  } else {
+                    console.log("Tags retrieved");
+                    // If the group hasn't hit the tag limit
+                    if (response.rows.length < 5) {
+                      console.log("Under tag capacity!");
+                      const query = "INSERT INTO grouptags VALUES ($1, $2);"
+                      client.query(query, [req.body.groupID, req.body.tagname], (err, response) => {
+                        if (err) {
+                          printError(err, "Error inserting tag (004)");
+                          res.status(503);
+                        }
+                        else {
+                          console.log("Tag created!");
+                          res.status(201).json({});
+                        }
+                      });
+                    }
+                    res.status(400);
+                  }
+                });
+              }
             } else {
               res.status(403);
             }
           } else {
+            console.log("Cannot find leader!")
             res.status(404);
           }
         });
@@ -1009,9 +1042,95 @@ router.post("/addGroupTag", async (req, res) => {
   });
 });
 
-// Create a tag
-// TODO - Add leader verification like in the route above?
-// TODO - Fix await result
+router.post("/editGroup", async (req, res) => {
+  // Parse the cookies
+  const cookies = cookieParser(req);
+
+  // Assume the given user is not valid to begin with
+  let authResult = false;
+
+  // Set up the query
+  const values = [cookies["email"], cookies["session"], req.ip];
+  console.log("Authenticating -- Email: " + values[0] + " sid: " + values[1] + " IP: " + values[2]);
+  let query = "SELECT * FROM session where email = $1 AND id = $2 AND ip = $3";
+
+  // Check to see if the given values exist in the session table
+  client.query(query, values, (err, response) => {
+    if (err) {
+      printError(err, "Unable to query when authenticating " + cookies["email"]);
+      authResult = false;
+    } else {
+      if (response.rows.length !== 0) {
+        const date = new Date();
+        authResult = date.toISOString() <= String(response.rows[0].expires);
+        console.log("Setting auth result to: " + authResult);
+      }
+      // If authResult is still false -> Invalidate session and send to login
+      if (!authResult) {
+        res.clearCookie("email");
+        res.clearCookie("session");
+        res.status(401).redirect("/");
+      } else {
+        const query = "SELECT leader FROM group_ WHERE groupid = $1";
+        client.query(query, [req.body.groupID], async (err, response) => {
+          if (err) {
+            printError(err, "Error validating leader (001)");
+            res.status(403);
+          }
+          else {
+            console.log("IN")
+            if (response.rows.length !== 0) {
+              console.log("length > 0")
+              console.log(response.rows[0]);
+              console.log(cookies["email"]);
+              console.log(response.rows[0].leader === cookies["email"])
+              if (response.rows[0].leader === cookies["email"]) {
+                console.log("User is leader");
+                const query = "UPDATE group_ "
+                    + "SET groupname = $1, "
+                    + "groupdesc = $2, "
+                    + "private = $3, "
+                    + "tagname = $4 "
+                    + "WHERE leader = $5 AND groupid = $6;"
+                const values = [req.body.groupname, req.body.groupdesc, req.body.private, req.body.tagname, cookies["email"], req.body.groupID];
+                console.log("Values: " + values.toString());
+
+                client.query(query, values, (err, response) => {
+                  if (err) {
+                    printError(err, "Error updating group information!");
+                    res.status(503).send("Error updating group information!");
+                  } else {
+                    if (req.body.url !== "") {
+                      const query = "UPDATE grouppics "
+                          + "SET pic = $1 "
+                          + "WHERE groupid = $2;"
+                      const values = [req.body.url, req.body.groupID];
+                      client.query(query, values, (err, response) => {
+                        if (err) {
+                          printError(err, "Error updating group picture!");
+                          res.status(503).send("Error updating group picture!");
+                        } else {
+                          console.log("Group information successfully updated!");
+                          res.status(201).send("Group information successfully updated!");
+                        }
+                      });
+                    } else {
+                      console.log("Group information successfully updated!");
+                      res.status(201).send("Group information successfully updated!");
+                    }
+                  }
+                });
+              }
+            }
+          }
+        });
+      }
+    }
+  });
+});
+
+
+// TODO - Remove/change
 router.post("/createTag", async (req, res) => {
   // Parse the cookies
   const cookies = cookieParser(req);
@@ -1041,8 +1160,7 @@ router.post("/createTag", async (req, res) => {
         res.clearCookie("session");
         res.status(401).redirect("/");
       } else {
-        let result = await createTag(req.body.groupID, req.body.tagname);
-        res.status(result);
+
       }
     }
   });
@@ -2163,19 +2281,19 @@ function changePostVote(req, res) {
 }
 
 // [DONE] Inserts a tag into the tag table and adds it to the group
-async function createTag(tagName, groupID) {
-
-  let query = "INSERT INTO tag (tagname) VALUES($1) "
-  client.query(query, [tagName], async (err, response) => {
-    if (err) {
-      printError(err, "Error inserting tag");
-      return 500;
-    } else {
-      return await addGroupTag(tagName, groupID);
-    }
-  });
-  return 500;
-}
+// async function createTag(tagName, groupID) {
+//
+//   let query = "INSERT INTO tag (tagname) VALUES($1) "
+//   client.query(query, [tagName], async (err, response) => {
+//     if (err) {
+//       printError(err, "Error inserting tag");
+//       return 500;
+//     } else {
+//       return await addGroupTag(tagName, groupID);
+//     }
+//   });
+//   return 500;
+// }
 
 // [DONE] Adds a tag to a group
 async function addGroupTag(groupTag, groupID) {
