@@ -6,7 +6,8 @@ Added:
 + Server authentication for every action
 + Updated DB schema
 + Live event updating on group page
-+ Functional group home page modals
++ Add group tag
++ Edit group info
 
 Needs to be added from main branch:
 - New home page style
@@ -16,7 +17,6 @@ Needs to be added from main branch:
 
 TODO
 - Edit event
-- Edit group info
 - Delete/(archive?) board
 - Ban user
 - Invitation notifications
