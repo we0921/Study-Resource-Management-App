@@ -19,8 +19,12 @@ document.addEventListener('DOMContentLoaded', (event) => {
         console.log("Eventname: " + event.eventname);
         data.events.push(event);
         fillGroups();
-    })
+    });
 
+    if (data.email !== data.group.leader) {
+        document.getElementById("addTagButton").style.display = "none";
+        document.getElementById("editGroupButton").style.display = "none";
+    }
 });
 
 // Onclick to create a board
@@ -100,20 +104,72 @@ $('#createEvent').click(function (e) {
 $('#addTag').click(function (e) {
     e.preventDefault();
     let tagname = document.getElementById("tagnameCreate").value;
-
+    console.log(tagname);
 
     $.ajax({
         type: 'POST',
-        url: '/createTag',
+        url: '/addGroupTag',
         data: {
             tagname: tagname,
             groupID: data.group.groupid,
         },
-        success: () => {
-            console.log("Tag added successfully");
+        statusCode:{
+            201: () => {
+                alert("Tag successfully added!");
+                document.getElementById("tagClose").click();
+                document.getElementById("tagnameCreate").value = "";
+            },
+            400: () => {
+                alert("Tag not added! Group can't have more than 5 tags.");
+                document.getElementById("tagClose").click();
+            },
+            403: () => {
+                alert("Error adding tag!");
+                document.getElementById("tagClose").click();
+                document.getElementById("tagnameCreate").value = "";
+            },
+            404: () => {
+                alert("Error adding tag!");
+                document.getElementById("tagClose").click();
+                document.getElementById("tagnameCreate").value = "";
+            },
+            503: () => {
+                alert("Service unavailable. Please try again later.");
+                document.getElementById("tagClose").click();
+                document.getElementById("tagnameCreate").value = "";
+            }
+        }
+    });
+});
+$('#editGroupSubmit').click(function (e) {
+    e.preventDefault();
+
+    $.ajax({
+        type: 'POST',
+        url: '/editGroup',
+        data: {
+            groupname: document.getElementById("editGroupName").value,
+            groupdesc: document.getElementById("editGroupDesc").value,
+            groupID: data.group.groupid,
+            private: document.getElementById("btnradio2").checked,
+            tagname: document.getElementById("grouptag").value,
+            url: document.getElementById("grouppic").value
         },
-        error: () => {
-            console.log("Tag not added!");
+        statusCode: {
+            201: (message) => {
+                alert(message);
+                document.getElementById("titleheader").innerText = document.getElementById("editGroupName").value;
+                document.getElementById("descheader").innerText = document.getElementById("editGroupDesc").value;
+                document.getElementById("groupInfoClose").click();
+            },
+            403: () => {
+                alert("Cannot update group information in this context!");
+                document.getElementById("groupInfoClose").click();
+            },
+            503: () => {
+                alert("Unable to update group information at this time. Please try again later");
+                document.getElementById("groupInfoClose").click();
+            }
         }
     });
 });

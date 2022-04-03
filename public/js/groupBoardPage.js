@@ -44,8 +44,12 @@ window.onload = async () => {
     // Retrieve which page we're on
     // and how many pages of posts exist
     length = data.posts.length;
-    maxPages = Math.floor(length / (postsPerPage + 1)) + 1;
-    currentPage = Math.floor(length / postsPerPage) + 1;
+    if (length > 0) {
+        maxPages = Math.ceil(length / postsPerPage);
+    }
+    currentPage = maxPages;
+    console.log("Current page: " + currentPage);
+    console.log("Max pages: " + maxPages);
 
     // Change the current page
     document.getElementById("currentPageAnch").innerText = currentPage;
@@ -98,11 +102,15 @@ async function onNewPost (d) {
         uservotes: d.postvotes,
     });
 
+    console.log("Length before: " + length)
     length = data.posts.length;
-    maxPages = Math.floor(length / (postsPerPage + 1)) + 1;
+    console.log("Length after: " + length)
+    console.log("Maxpages before: " + maxPages);
+    maxPages = Math.ceil(length / postsPerPage);
+    console.log("Maxpages after: " + maxPages);
 
     if (maxPages > currentPage) {
-        document.getElementById("nextPageBtn").classname = "page-item";
+        await showNext();
     }
 
     showPosts();
@@ -139,36 +147,37 @@ function setPostSubmissionClick() {
 
 // Displays posts according to the current page and the posts per page the user wishes to see
 function showPosts() {
-        // Wipe the inner HTML of the post list - removes all currently displayed posts
-        document.getElementById("postList").innerHTML = "";
+    // Wipe the inner HTML of the post list - removes all currently displayed posts
+    document.getElementById("postList").innerHTML = "";
 
-        // Build the persistent header post [board title & description]
-        buildBoardHeader(data.boardInfo[0]);
+    // Build the persistent header post [board title & description]
+    buildBoardHeader(data.boardInfo[0]);
 
-        // Retrieve which page we're on
-        // and how many pages of posts exist
-        length = data.posts.length;
-        maxPages = Math.floor(length / (postsPerPage + 1)) + 1;
+    // Retrieve which page we're on
+    // and how many pages of posts exist
+    length = data.posts.length;
+    if (length > 0)
+        maxPages = Math.ceil(length / postsPerPage);
 
-        console.log("maxPages: " + maxPages);
-        console.log("currentPage: " + currentPage);
-        console.log("data.posts.length: " + length);
+    console.log("maxPages: " + maxPages);
+    console.log("currentPage: " + currentPage);
+    console.log("data.posts.length: " + length);
 
-        // Find the beginning post index for the current page
-        let begin = (currentPage - 1) * postsPerPage;
-        let end = begin + (postsPerPage - 1);
+    // Find the beginning post index for the current page
+    let begin = (currentPage - 1) * postsPerPage;
+    let end = begin + (postsPerPage - 1);
 
-        console.log(begin);
-        console.log(end);
+    console.log(begin);
+    console.log(end);
 
-        // Prevent out-of-bounds errors by using whichever comes sooner
-        end = Math.min(end, length - 1);
+    // Prevent out-of-bounds errors by using whichever comes sooner
+    end = Math.min(end, length - 1);
 
-        // Build the posts
-        for (let i = begin; i <= end; i++) {
-            buildPost(data.posts[i]);
-            //console.log(data.posts[i]);
-        }
+    // Build the posts
+    for (let i = begin; i <= end; i++) {
+        buildPost(data.posts[i]);
+        //console.log(data.posts[i]);
+    }
 }
 
 // Sets on click events for the voting and delete buttons
@@ -241,7 +250,7 @@ async function setOnClicks() {
                     userID: userID
                 },
                 statusCode: {
-                    200: function(response) {
+                    200: async function (response) {
                         console.log(response);
                         console.log(response.post);
                         alert("Successfully deleted");
@@ -267,17 +276,27 @@ async function setOnClicks() {
                         }
                         // Deleting middle post
                         else {
-                            let part1 = data.posts.slice(0,loc);
+                            let part1 = data.posts.slice(0, loc);
                             let part2 = data.posts.slice(loc + 1, data.posts.length);
                             data.posts = part1.concat(part2);
                         }
 
                         // Update length
                         length = data.posts.length;
+                        // Recalculate max page
+                        if (length > 0) {
+                            maxPages = Math.ceil(length / postsPerPage);
+                        }
+                        // If we've deleted the only post on the page, force the user back a page
+                        if (currentPage > maxPages) {
+                            await showPrevious();
+                        }
 
                         // Show posts and set on click
                         showPosts();
-                        setOnClicks();
+                        await setOnClicks();
+                        buildNewPostForm();
+                        setPostSubmissionClick();
                     },
                     500: function() {
                         console.log("Error deleting post! (001)");
@@ -325,6 +344,10 @@ async function showPrevious() {
     if (currentPage === 1) {
         // Disable the button
         document.getElementById("prevPageBtn").className = "page-item disabled";
+    }
+    if (currentPage === maxPages) {
+        // Disable the button
+        document.getElementById("nextPageBtn").className = "page-item disabled";
     }
     showPosts();
     await setOnClicks();
