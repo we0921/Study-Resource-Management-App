@@ -53,7 +53,7 @@
       <div id="login-form" class="col-lg-7 px-5 pt-7 pb-3" style="display: block">
         <h1 class="font-weight-bold py-3">Cubchat</h1>
         <h4>Sign into your account</h4>
-        <form action = "/" method = "post">
+        <form action = "/login" method = "post">
           <div class="form-row">
             <div class="col-lg-7">
               <input type="email" name = "loginEmail" placeholder="Email-Address" class="form-control my-3 p-4">
@@ -77,7 +77,7 @@
       <div id="register-form" class="col-lg-7 px-5 pt-7 pb-3" style="display:none">
         <h1 class="font-weight-bold py-3">Cubchat</h1>
         <h4>Register an account</h4>
-        <form action = "/" method = "post">
+        <form action = "/register" method = "post">
           <div class="form-row row my-3">
             <div class="col-lg-7">
               <input type="email" name = "registerEmail" placeholder="Email Address" class="form-control p-4">
@@ -91,7 +91,7 @@
               <input type="password" placeholder="*******"  name = "registerPassword" class="form-control p-4">
             </div>
             <div class="col-lg-5">
-              <input type="password" placeholder="Wick"  name = "last" class="form-control p-4">
+              <input type="text" placeholder="Wick"  name = "last" class="form-control p-4">
             </div>
           </div>
           <div class="form-row">
