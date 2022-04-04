@@ -91,9 +91,10 @@ router.get("/home", async (req, res) => {
 
   // Assume the given user is not valid to begin with
   let authResult = false;
+  let ip = getClientIp(req);
 
   // Set up the query
-  const values = [cookies["email"], cookies["session"], req.ip];
+  const values = [cookies["email"], cookies["session"], ip];
   console.log("Authenticating -- Email: " + values[0] + " sid: " + values[1] + " IP: " + values[2]);
   let query = "SELECT * FROM session where email = $1 AND id = $2 AND ip = $3";
 
@@ -146,7 +147,6 @@ router.get("/home", async (req, res) => {
                       groups: groups,
                       events: events
                     }
-                    //console.log(obj);
                     res.render("homepage", {sObj: JSON.stringify(obj), obj: obj, email: cookies["email"]});
                   }
                 });
