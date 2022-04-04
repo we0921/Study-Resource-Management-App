@@ -277,6 +277,7 @@ function createBoard (board) {
     editIcon.className = "bi bi-pencil-square";
     editButton.append(editIcon);
     editButton.id = "edit" + board.boardid;
+    editButton.style.display = "none";
 
     // Delete Button
     let deleteButton = document.createElement("button");
@@ -287,6 +288,7 @@ function createBoard (board) {
 
     deleteButton.appendChild(deleteIcon);
     deleteButton.id = "delete" + board.boardid;
+    deleteButton.style.display = "none";
 
     // Put it all together
     boardAnchor.append(boardName, boardDesc);
