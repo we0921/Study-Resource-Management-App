@@ -431,9 +431,12 @@ router.get("/groupPage/:groupID", (req, res) => {
                     if (err) printError(err, "Error retrieving events (002)")
                     else
                     {
+                     
                       response.rows.forEach((row) => {
-                        if (row.endunix <= date)
-                          events.push(row);
+                        console.log(row);
+                        if (row.endunix <= date) {
+                            events.push(row);
+                        } else console.log("EVENT EXPIRED");
                       });
 
                       // Fetch boards
