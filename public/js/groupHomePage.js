@@ -202,6 +202,7 @@ $('#editBoardButton').click((e) => {
         data.boards.forEach((board) => {
             document.getElementById("delete" + board.boardid).style.display = "none";
             document.getElementById("edit" + board.boardid).style.display = "none";
+            document.getElementById("save" + board.boardid).style.display = "none";
         });
     }
 });
@@ -220,6 +221,43 @@ function setOnClicks() {
             // Hide the edit button for this group
             document.getElementById("edit" + board.boardid).style.display = "none";
         });
+        $('save' + board.boardid).click(() => {
+            boardname = document.getElementById("editName" + board.boardid).value;
+            boarddesc = document.getElementById("editDesc" + board.boardid).value;
+
+
+            $.ajax({
+                url: '/editBoard',
+                method: 'POST',
+                data: {
+                    boardid: board.board.id,
+                    boardname: boardname,
+                    boarddesc: boarddesc,
+                    email: data.email
+                },
+                statusCode: {
+                    201: () => {
+                        alert("Changes saved!");
+                        document.getElementById("editName" + board.boardid).style.display = "none";
+                        document.getElementById("editDesc" + board.boardid).style.display = "none";
+
+                        document.getElementById("boardName" + board.boardid).style.display = "block";
+                        document.getElementById("boardName" + board.boardid).innerText = boardname;
+                        document.getElementById("boardDesc" + board.boardid).style.display = "block";
+                        document.getElementById("boardDesc" + board.boardid).innerText = boarddesc;
+
+                        document.getElementById("save" + board.boardid).style.display = "none";
+                        document.getElementById("edit" + board.boardid).style.display = "block";
+                    },
+                    403: (err) => {
+                        alert(err);
+                    },
+                    503: (err) => {
+                        alert(err);
+                    }
+                }
+            })
+        })
     });
 }
 
