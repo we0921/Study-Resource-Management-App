@@ -1,4 +1,5 @@
 let data;
+let editingBoards = false;
 let socket;
 
 document.addEventListener('DOMContentLoaded', (event) => {
@@ -175,6 +176,24 @@ $('#editGroupSubmit').click(function (e) {
         }
     });
 });
+// Toggle visibility of board delete buttons
+$('#editBoardButton').click((e) => {
+    e.preventDefault();
+
+    editingBoards = !editingBoards;
+
+    if (editingBoards) {
+        data.boards.forEach((board) => {
+           document.getElementById("delete" + board.boardid).style.display = "block";
+           document.getElementById("edit" + board.boardid).style.display = "block";
+        });
+    } else {
+        data.boards.forEach((board) => {
+            document.getElementById("delete" + board.boardid).style.display = "none";
+            document.getElementById("edit" + board.boardid).style.display = "block";
+        });
+    }
+});
 
 
 
@@ -251,6 +270,15 @@ function createBoard (board) {
     boardDesc.className = "mb-1";
     boardDesc.innerText = board.boarddesc;
 
+    // Edit Button
+    let editButton = document.createElement("button");
+    editButton.className = "btn btn-primary btn-sm";
+    let editIcon = document.createElement("i");
+    editIcon.className = "bi bi-pencil-square";
+    editButton.append(editIcon);
+    editButton.id = "edit" + board.boardid;
+
+    // Delete Button
     let deleteButton = document.createElement("button");
     deleteButton.className = "btn btn-danger btn-sm";
 
@@ -260,31 +288,11 @@ function createBoard (board) {
     deleteButton.appendChild(deleteIcon);
     deleteButton.id = "delete" + board.boardid;
 
-
-    // Third child of the card - the most recent comment
-    /*
-    let commentContainer = document.createElement("div");
-    commentContainer.className = "d-flex justify-content-between";
-
-    let commentContent = document.createElement("small");
-    commentContent.style.fontStyle = "font-italic";
-    commentContent.innerText = comment.author + ": " + comment.text;
-
-    let commentDate = document.createElement("small");
-    commentDate.innerText = comment.date;
-
-        // Populate the comment container
-    commentContainer.appendChild(commentContent);
-    commentContainer.appendChild(commentDate);
-    */
     // Put it all together
     boardAnchor.append(boardName, boardDesc);
     boardCard.append(boardAnchor);
-    boardCard.append(deleteIcon);
-    // boardAnchor.appendChild(boardName);
-    // boardAnchor.appendChild(boardDesc);
-
-    //boardAnchor.appendChild(commentContainer);
+    boardCard.append(editButton);
+    boardCard.append(deleteButton);
 
     document.getElementById("boardList").appendChild(boardCard);
 }
