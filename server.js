@@ -425,7 +425,7 @@ router.get("/groupPage/:groupID", (req, res) => {
                   // Fetch events
                   const query2 = "SELECT * FROM event WHERE groupid = $1 && endunix >= $2";
                   console.log("Finished event query");
-                  const values = [req.params["groupID"], new Date.now()];
+                  const values = [req.params["groupID"], (new Date).now()];
                   client.query(query2, values, (err, response) => {
                     if (err) printError(err, "Error retrieving events (002)")
                     else
