@@ -2451,7 +2451,7 @@ function showInvites(email, res) {
                 groups: groups
               }
               console.log(obj);
-              res.render("invites", {obj: obj});
+              res.render("eventHomePage", {obj: obj});
             }
           });
         }
