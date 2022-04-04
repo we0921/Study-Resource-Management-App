@@ -1577,7 +1577,8 @@ async function login(req, res) {
             const query = "INSERT INTO session VALUES($1, $2, $3, to_timestamp($4), to_timestamp($5))";
             const values = [req.ip, sessionID, loginEmail, (Date.now() / 1000), (Date.now() / 1000) + 1209600];
 
-            console.log(req.ip);
+            console.log("IP ADDRESS: " + req.ip);
+            console.log("IP ADDRESSES: " + req.ips);
 
             // Store the session in the database
             client.query(query, values, (err, response) => {
