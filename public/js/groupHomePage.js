@@ -211,11 +211,13 @@ $('#editBoardButton').click((e) => {
 
     if (editingBoards) {
         data.boards.forEach((board) => {
+           document.getElementById("anchor" + board.boardid).className = "list-group-item";
            document.getElementById("delete" + board.boardid).style.display = "block";
            document.getElementById("edit" + board.boardid).style.display = "block";
         });
     } else {
         data.boards.forEach((board) => {
+            document.getElementById("anchor" + board.boardid).className = "list-group-item list-group-item-action";
             document.getElementById("delete" + board.boardid).style.display = "none";
             document.getElementById("edit" + board.boardid).style.display = "none";
             document.getElementById("save" + board.boardid).style.display = "none";
@@ -340,6 +342,7 @@ function createBoard (board) {
     let boardAnchor = document.createElement("a");
     boardAnchor.className = "list-group-item list-group-item-action";
     boardAnchor.href = "/groupBoardPage/" + data.group.groupid + "/" + board.boardid;
+    boardAnchor.id = "anchor" + board.boardid;
 
     // Card that holds the info
     let boardCard = document.createElement("div");
