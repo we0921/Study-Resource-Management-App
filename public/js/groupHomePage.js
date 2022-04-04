@@ -222,6 +222,7 @@ function setOnClicks() {
             document.getElementById("edit" + board.boardid).style.display = "none";
         });
         $('save' + board.boardid).click(() => {
+            console.log("Save clicked!");
             boardname = document.getElementById("editName" + board.boardid).value;
             boarddesc = document.getElementById("editDesc" + board.boardid).value;
 
