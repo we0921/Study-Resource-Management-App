@@ -248,6 +248,7 @@ function setOnClicks() {
                 method: 'POST',
                 data: {
                     boardid: board.boardid,
+                    groupid: data.group.groupid,
                     boardname: boardname,
                     boarddesc: boarddesc,
                     email: data.email
