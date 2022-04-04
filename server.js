@@ -1561,6 +1561,7 @@ async function login(req, res) {
         };
         res.status(401).json({status: login_reg_status});
       } else {
+        console.log("VALID CREDENTIALS");
         // User exists in the database
         // => Delete any sessions with the current IP address
         const query = "DELETE FROM session WHERE ip = $1 AND email = $2";
@@ -1588,10 +1589,11 @@ async function login(req, res) {
               if (err) {
                 printError(err, "3");
               } else {
+                console.log("STORING COOKIES");
                 // Successfully stored in database => store as cookie
                 res.cookie("session", sessionID, {expires: new Date(Date.now() + 1209600000), secure: true});
                 res.cookie("email", loginEmail, {expires: new Date(Date.now() + 1209600000), secure: true});
-
+                console.log("COOKIES STORED");
                 // Redirect to the home page
                 res.redirect("/home");
               }
