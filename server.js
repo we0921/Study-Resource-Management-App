@@ -2483,6 +2483,44 @@ function changePostVote(req, res) {
     }
   });
 }
+function deleteGroup(req, res, groupID, leader, ) {
+  const query =
+      "SELECT leader " +
+      "FROM group_ " +
+      "WHERE leader = $1";
+  client.query(query, [leader], (err, response) => {
+    if (err) print("could not find leader", err);
+    else {
+      if (response.rows.length !== 0) {
+        // Get the user's information
+        const query =
+            "UPDATE group_ " +
+            "SET deleted = $1 " +
+            "WHERE groupid = $2 ";
+        client.query(query, [true, groupID], (err, response) => {
+          if (err) {
+            printError(err, "could not find group to update", err);
+          } else {
+            //setting all boards in group to deleted
+            const query =
+                "WITH boards as (" +
+                "SELECT boardid " +
+                "FROM board NATURAL JOIN boardlist" +
+                "WHERE groupid = $1) " +
+                "UPDATE board " +
+                "SET deleted = true " +
+                "WHERE groupid = boards.groupid ";
+            client.query(query, [groupID], (err, response) => {
+              res.redirect("/home");
+            });
+          }
+        });
+      } else {
+        res.status(400);
+      }
+    }
+  });
+}
 
 // [DONE] Inserts a tag into the tag table and adds it to the group
 // async function createTag(tagName, groupID) {
