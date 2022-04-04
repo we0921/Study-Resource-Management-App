@@ -1564,7 +1564,7 @@ async function login(req, res) {
         // => Delete any sessions with the current IP address
         const query = "DELETE FROM session WHERE ip = $1 AND email = $2";
         const values = [req.ip, loginEmail];
-
+        console.log(req.ip);
         client.query(query, values, async (err, response) => {
           if (err) {
             printError(err, "2");
