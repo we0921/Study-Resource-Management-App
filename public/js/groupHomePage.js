@@ -318,6 +318,7 @@ function createBoard (board) {
     let saveIcon = document.createElement("i");
     saveIcon.className = "bi bi-save";
     saveButton.id = "save" + board.boardid;
+    saveButton.style.display = "none";
     saveButton.append(saveIcon);
 
     // Edit Button
