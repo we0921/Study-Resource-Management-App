@@ -374,6 +374,7 @@ router.get("/groupPage/:groupID", (req, res) => {
       printError(err, "Unable to query when authenticating " + cookies["email"]);
       authResult = false;
     } else {
+      console.log("Finished auth query");
       if (response.rows.length !== 0) {
         const date = new Date();
         authResult = date.toISOString() <= String(response.rows[0].expires);
@@ -393,6 +394,7 @@ router.get("/groupPage/:groupID", (req, res) => {
         const values = [cookies["email"], req.params["groupID"]];
 
         client.query(query, values, (err, response) => {
+          console.log("Finished member query");
           if (err) {
             // Error determining if user is a member
             printError(err, "Error determining if user is a member");
@@ -408,12 +410,14 @@ router.get("/groupPage/:groupID", (req, res) => {
               const query = "SELECT * FROM group_ WHERE groupid = $1";
               const values = [req.params["groupID"]];
               client.query(query, values, (err, response) => {
+                console.log("Finished group query");
                 if (err) printError(err, "Error retrieving group info (001)")
                 else {
                   groupInfo = response.rows[0];
 
                   // Fetch events
                   const query2 = "SELECT * FROM event WHERE groupid = $1";
+                  console.log("Finished event query");
                   client.query(query2, values, (err, response) => {
                     if (err) printError(err, "Error retrieving events (002)")
                     else {
@@ -422,6 +426,7 @@ router.get("/groupPage/:groupID", (req, res) => {
                       // Fetch boards
                       const query3 = "SELECT * from board natural join boardlist WHERE groupid = $1"
                       client.query(query3, values, (err, response) => {
+                        console.log("Finished board query");
                         if (err) printError(err, "Error retrieving boards (003)")
                         else {
                           boards = response.rows;
