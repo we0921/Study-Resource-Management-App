@@ -1542,6 +1542,7 @@ async function login(req, res) {
   // Grab the values
   let loginEmail = req.body.loginEmail;
   let loginPass = req.body.loginPassword;
+  let ip = getClientIp(req);
 
   console.log(loginEmail);
   console.log(loginPass);
@@ -1563,8 +1564,8 @@ async function login(req, res) {
         // User exists in the database
         // => Delete any sessions with the current IP address
         const query = "DELETE FROM session WHERE ip = $1 AND email = $2";
-        const values = [req.ip, loginEmail];
-        console.log(req.ip);
+        const values = [ip, loginEmail];
+        
         client.query(query, values, async (err, response) => {
           if (err) {
             printError(err, "2");
@@ -1575,10 +1576,12 @@ async function login(req, res) {
             });
 
             const query = "INSERT INTO session VALUES($1, $2, $3, to_timestamp($4), to_timestamp($5))";
-            const values = [req.ip, sessionID, loginEmail, (Date.now() / 1000), (Date.now() / 1000) + 1209600];
+            const values = [ip, sessionID, loginEmail, (Date.now() / 1000), (Date.now() / 1000) + 1209600];
 
             console.log("IP ADDRESS: " + req.ip);
             console.log("IP ADDRESSES: " + req.ips);
+            console.log("FUNCTION IP: " + ip);
+            
 
             // Store the session in the database
             client.query(query, values, (err, response) => {
@@ -2382,3 +2385,22 @@ function addGroupTag(groupTag, groupID) {
 function displayGroupInfo(req, res) {
 
 }
+
+function getClientIp(req) {
+  var ipAddress;
+  // Amazon EC2 / Heroku workaround to get real client IP
+  var forwardedIpsStr = req.header('x-forwarded-for'); 
+  if (forwardedIpsStr) {
+    // 'x-forwarded-for' header may return multiple IP addresses in
+    // the format: "client IP, proxy 1 IP, proxy 2 IP" so take the
+    // the first one
+    var forwardedIps = forwardedIpsStr.split(',');
+    ipAddress = forwardedIps[0];
+  }
+  if (!ipAddress) {
+    // Ensure getting client IP address still works in
+    // development environment
+    ipAddress = req.connection.remoteAddress;
+  }
+  return ipAddress;
+};
