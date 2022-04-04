@@ -147,7 +147,7 @@ router.get("/home", async (req, res) => {
                       events: events
                     }
                     //console.log(obj);
-                    res.render("homePage", {sObj: JSON.stringify(obj), obj: obj, email: cookies["email"]});
+                    res.render("homepage", {sObj: JSON.stringify(obj), obj: obj, email: cookies["email"]});
                   }
                 });
               }
