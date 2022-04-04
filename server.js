@@ -659,6 +659,40 @@ router.post("/addBoard", async (req, res) => {
   });
 });
 
+router.post("/deleteGroup", async (req, res) => {
+  // Parse the cookies
+  const cookies = cookieParser(req);
+
+  // Assume the given user is not valid to begin with
+  let authResult = false;
+  let ip = getClientIp(req);
+  // Set up the query
+  const values = [cookies["email"], cookies["session"], ip];
+  console.log("Authenticating -- Email: " + values[0] + " sid: " + values[1] + " IP: " + values[2]);
+  let query = "SELECT * FROM session where email = $1 AND id = $2 AND ip = $3";
+
+  // Check to see if the given values exist in the session table
+  client.query(query, values, (err, response) => {
+    if (err) {
+      printError(err, "Unable to query when authenticating " + cookies["email"]);
+      authResult = false;
+    } else {
+      if (response.rows.length !== 0) {
+        const date = new Date();
+        authResult = date.toISOString() <= String(response.rows[0].expires);
+        console.log("Setting auth result to: " + authResult);
+      }
+      // If authResult is still false -> Invalidate session and send to login
+      if (!authResult) {
+        res.clearCookie("email");
+        res.clearCookie("session");
+        res.status(401).redirect("/");
+      } else {
+        deleteGroup(req, res, req.body.groupID, req.body.leader);
+      }
+    }
+  });
+});
 // Delete a board
 router.post("/deleteBoard", async (req, res) => {
   // Parse the cookies
