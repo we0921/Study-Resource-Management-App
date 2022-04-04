@@ -1548,6 +1548,7 @@ router.get("groupPage/:groupID/groupInfo", async (req, res) => {
 
 // Editing board
 router.post("/editBoard", async (req, res) => {
+  
   // Parse the cookies
   const cookies = cookieParser(req);
 
@@ -1587,6 +1588,11 @@ router.post("/editBoard", async (req, res) => {
                 res.status(503).send("No leader found");
               }
               else {
+                console.log("req.body.email: " + req.body.email);
+                console.log("cookies["email"]: " + cookies["email"]);
+                console.log("leader: " + response.rows[0].leader);
+                
+                
                 if (response.rows[0].leader === cookies["email"]) {
                   console.log("User is leader");
                   const query = "UPDATE board "
@@ -1598,6 +1604,7 @@ router.post("/editBoard", async (req, res) => {
                       printError(err, "Board not updated!");
                       res.status(503).send("Board not updated. Please try again later!");
                     } else {
+                      console.log("Board updated");
                       res.status(201);
                     }
                   });
