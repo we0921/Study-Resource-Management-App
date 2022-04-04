@@ -1,13 +1,24 @@
 let data;
 let editingBoards = false;
 let socket;
+let editing;
 
 document.addEventListener('DOMContentLoaded', (event) => {
+    // Parse the data
     data = JSON.parse(document.getElementById("group").innerText);
     document.getElementById("titleheader").innerText = data.group.groupname;
     document.getElementById("descheader").innerText = data.group.groupdesc;
     console.log(data);
+
+    // Fill the event and board panels
     fillGroups();
+    setOnClicks();
+
+    // Create a map to store which boards are being edited
+    // editing = new Map();
+    // for (let i = 0; i < data.boards.length; i++) {
+    //     editing.set(data.boards[i].boardid, false);
+    // }
 
     // Set up the socket
     socket = io();
@@ -195,6 +206,23 @@ $('#editBoardButton').click((e) => {
     }
 });
 
+function setOnClicks() {
+    data.boards.forEach((board) => {
+        $('#edit' + board.boardid).click(() => {
+            // Show the input forms
+            document.getElementById("editName" + board.boardid).style.display = "block";
+            document.getElementById("editDesc" + board.boardid).style.display = "block";
+            // Hide the elements
+            document.getElementById("boardName" + board.boardid).style.display = "none";
+            document.getElementById("boardDesc" + board.boardid).style.display = "none";
+            // Show the save button for this group
+            document.getElementById("save" + board.boardid).style.display = "block";
+            // Hide the edit button for this group
+            document.getElementById("edit" + board.boardid).style.display = "none";
+        });
+    });
+}
+
 
 
 /*function userInvited(data) {
@@ -264,11 +292,32 @@ function createBoard (board) {
     // First child of the card - the board's name
     let boardName = document.createElement("h5")
     boardName.innerText = board.boardname;
+    boardName.id = "boardName" + board.boardid;
+
+    // Hidden input for editing
+    let boardNameInput = document.createElement("input");
+    boardNameInput.style.display = "none";
+    boardNameInput.value = board.boardname;
+    boardNameInput.id = "editName" + board.boardid;
 
     // Second child of the card - the board's description
     let boardDesc = document.createElement("span");
     boardDesc.className = "mb-1";
     boardDesc.innerText = board.boarddesc;
+    boardDesc.id = "boardDesc" + board.boardid;
+
+    // Hidden input for editing
+    let boardDescInput = document.createElement("input");
+    boardDescInput.style.display = "none";
+    boardDescInput.value = board.boarddesc;
+    boardDescInput.id = "editDesc" + board.boardid;
+
+    // Save changes
+    let saveButton = document.createElement("button");
+    saveButton.className = "btn btn-primary btn-sm";
+    let saveIcon = document.createElement("i");
+    saveIcon.className = "bi bi-save";
+    saveButton.id = "save" + board.boardid;
 
     // Edit Button
     let editButton = document.createElement("button");
@@ -291,10 +340,8 @@ function createBoard (board) {
     deleteButton.style.display = "none";
 
     // Put it all together
-    boardAnchor.append(boardName, boardDesc);
-    boardCard.append(boardAnchor);
-    boardCard.append(editButton);
-    boardCard.append(deleteButton);
+    boardAnchor.append(boardName, boardNameInput, boardDesc, boardDescInput);
+    boardCard.append(boardAnchor, saveButton, editButton, deleteButton);
 
     document.getElementById("boardList").appendChild(boardCard);
 }
