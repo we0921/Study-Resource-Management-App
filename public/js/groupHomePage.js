@@ -190,7 +190,7 @@ $('#editBoardButton').click((e) => {
     } else {
         data.boards.forEach((board) => {
             document.getElementById("delete" + board.boardid).style.display = "none";
-            document.getElementById("edit" + board.boardid).style.display = "block";
+            document.getElementById("edit" + board.boardid).style.display = "none";
         });
     }
 });
