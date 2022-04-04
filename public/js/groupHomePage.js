@@ -20,14 +20,11 @@ document.addEventListener('DOMContentLoaded', (event) => {
         data.events.push(event);
         fillGroups();
     });
-    socket.on("editEvent", async (event) => {
-        console.log("Event edited");
-        console.log(event);
-    });
 
     if (data.email !== data.group.leader) {
         document.getElementById("addTagButton").style.display = "none";
         document.getElementById("editGroupButton").style.display = "none";
+        document.getElementById("editBoardButton").style.display = "none";
     }
 });
 
@@ -47,7 +44,8 @@ $('#createBoard').click(function (e) {
             groupID: data.group.groupid
         },
         success: () => {
-            console.log("Board created successfully");
+            alert("Board created successfully");
+            document.getElementById("boardClose").click();
         },
         error: () => {
             console.log("Board not created");
@@ -68,17 +66,11 @@ $('#inviteButton').click(function (e) {
             groupID: data.group.groupid,
             reqTypeInvite
         },
-        statusCode:
-        {
-            201: function () {
-                alert("Success!");    
-            }
-        },
         success: (result) => {
             console.log("Invite Request was successfully Sent!");
             console.log(result);
         },
-        error: function () {
+        error: () => {
             console.log("Invite Request was unsuccessfully Sent");
         }
     });
@@ -185,6 +177,7 @@ $('#editGroupSubmit').click(function (e) {
 });
 
 
+
 /*function userInvited(data) {
     console.log(data);
     //todo: display notification to user
@@ -240,9 +233,6 @@ function createEvent (event) {
 }
 
 function createBoard (board) {
-
-    console.log(board);
-
     // Anchor that holds the card
     let boardAnchor = document.createElement("a");
     boardAnchor.className = "list-group-item list-group-item-action";
@@ -250,7 +240,7 @@ function createBoard (board) {
 
     // Card that holds the info
     let boardCard = document.createElement("div");
-    boardCard.className = "d-flex justify-content-between";
+    boardCard.className = "d-flex";
 
     // First child of the card - the board's name
     let boardName = document.createElement("h5")
@@ -260,6 +250,16 @@ function createBoard (board) {
     let boardDesc = document.createElement("span");
     boardDesc.className = "mb-1";
     boardDesc.innerText = board.boarddesc;
+
+    let deleteButton = document.createElement("button");
+    deleteButton.className = "btn btn-danger btn-sm";
+
+    let deleteIcon = document.createElement("i");
+    deleteIcon.className = "bi bi-trash-fill";
+
+    deleteButton.appendChild(deleteIcon);
+    deleteButton.id = "delete" + board.boardid;
+
 
     // Third child of the card - the most recent comment
     /*
@@ -278,9 +278,13 @@ function createBoard (board) {
     commentContainer.appendChild(commentDate);
     */
     // Put it all together
-    boardAnchor.appendChild(boardName);
-    boardAnchor.appendChild(boardDesc);
+    boardAnchor.append(boardName, boardDesc);
+    boardCard.append(boardAnchor);
+    boardCard.append(deleteIcon);
+    // boardAnchor.appendChild(boardName);
+    // boardAnchor.appendChild(boardDesc);
+
     //boardAnchor.appendChild(commentContainer);
 
-    document.getElementById("boardList").appendChild(boardAnchor);
+    document.getElementById("boardList").appendChild(boardCard);
 }
