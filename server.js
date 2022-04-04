@@ -129,7 +129,7 @@ router.get("/home", async (req, res) => {
 
             // getting the groups they are a part of
             query = "WITH groupsInvited AS (SELECT * FROM member_ WHERE email = $1 and status = true) " +
-                "SELECT * FROM group_ JOIN groupsInvited ON group_.groupid = groupsInvited.groupid"
+                "SELECT * FROM group_ JOIN groupsInvited ON group_.groupid = groupsInvited.groupid WHERE group_.deleted = false";
             client.query(query, values, (err, response) => {
               if (err) printError(err, "2");
               else {
@@ -1620,6 +1620,8 @@ router.post("/editBoard", async (req, res) => {
         res.clearCookie("session");
         res.status(401).redirect("/");
       } else {
+        console.log("EMAIL: "+ req.body.email);
+        console.log("cookie: " + cookies["email"]);
         if (req.body.email === cookies["email"]) {
           const query = "SELECT leader FROM group_ where groupid = $1";
           client.query(query, [req.body.groupid], (err, response) => {
@@ -1628,6 +1630,7 @@ router.post("/editBoard", async (req, res) => {
               res.status(503).send("Error retrieving group leader");
             } else {
               if (response.rows.length === 0) {
+                console.log("No leader found");
                 res.status(503).send("No leader found");
               }
               else {
@@ -1648,7 +1651,7 @@ router.post("/editBoard", async (req, res) => {
                       res.status(503).send("Board not updated. Please try again later!");
                     } else {
                       console.log("Board updated");
-                      res.status(201);
+                      res.status(201).json({});
                     }
                   });
                 }
