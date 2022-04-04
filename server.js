@@ -1091,7 +1091,55 @@ router.post("/addGroupTag", async (req, res) => {
     }
   });
 });
+router.post("/editEventInfo", async (req, res) => {
+  // Parse the cookies
+  const cookies = cookieParser(req);
 
+  // Assume the given user is not valid to begin with
+  let authResult = false;
+  let ip = getClientIp(req);
+
+  // Set up the query
+  const values = [cookies["email"], cookies["session"], ip];
+  console.log("Authenticating -- Email: " + values[0] + " sid: " + values[1] + " IP: " + values[2]);
+  let query = "SELECT * FROM session where email = $1 AND id = $2 AND ip = $3";
+
+  // Check to see if the given values exist in the session table
+  client.query(query, values, (err, response) => {
+    if (err) {
+      printError(err, "Unable to query when authenticating " + cookies["email"]);
+      authResult = false;
+    } else {
+      if (response.rows.length !== 0) {
+        const date = new Date();
+        authResult = date.toISOString() <= String(response.rows[0].expires);
+        console.log("Setting auth result to: " + authResult);
+      }
+      // If authResult is still false -> Invalidate session and send to login
+      if (!authResult) {
+        res.clearCookie("email");
+        res.clearCookie("session");
+        res.status(401).redirect("/");
+      } else {
+        let eventName = req.body.eventname;
+        let eventDesc = req.body.eventDesc;
+        let eventID = req.body.eventID;
+
+        const query =
+            "UPDATE event " +
+            "SET eventname = $1 " +
+            "eventdesc = $2 " +
+            "WHERE eventID = $3";
+        client.query(query, [eventName, eventDesc, eventID], async (err, response) => {
+          if (err) printError(err, "Failed to update event info");
+          else {
+            res.status(200);
+          }
+        });
+      }
+    }
+  });
+});
 router.post("/editGroup", async (req, res) => {
   // Parse the cookies
   const cookies = cookieParser(req);
@@ -2226,10 +2274,30 @@ function editEvent(req, res, eventName, eventDesc, eventID) {
     if (err) {
       printError(err, "Error retrieving owner of post (001)");
     } else {
-
+      res.status(200);
     }
   });
 }
+
+function editGroupInfo(req, res, groupName, groupDesc, groupID, leader) {
+  const query =
+      "UPDATE group_ " +
+      "SET groupname = $1 " +
+      "groupdesc = $2 " +
+      "WHERE groupID = $3 AND " +
+      "leader = $4";
+  const values = [groupName, groupDesc, groupID, leader];
+  client.query(query, (err, response) => {
+    if (err) {
+      printError("failed to update groupinfo", err);
+      res.status(300);
+    }
+    else {
+      res.status(200);
+    }
+  });
+}
+
 // [DONE] displays the invites page
 function showInvites(email, res) {
   // Get the user's information
