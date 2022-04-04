@@ -155,6 +155,22 @@ $('#addTag').click(function (e) {
         }
     });
 });
+$('#deleteGroupButton').click(function (e) {
+    e.preventDefault();
+    $.ajax({
+        type: 'POST',
+        url: '/deleteGroup',
+        data: {
+            groupID: data.group.groupid,
+            leader: data.group.leader,
+        },
+        statusCode: {
+            400: () => {
+                console.log("group unsuccsessfully deleted");
+            }
+        }
+    });
+});
 $('#editGroupSubmit').click(function (e) {
     e.preventDefault();
 
