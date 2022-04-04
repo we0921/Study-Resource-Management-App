@@ -167,9 +167,10 @@ router.post("/group", async (req, res) => {
 
   // Assume the given user is not valid to begin with
   let authResult = false;
+  let ip = getClientIp(req);
 
   // Set up the query
-  const values = [cookies["email"], cookies["session"], req.ip];
+  const values = [cookies["email"], cookies["session"], ip];
   console.log("Authenticating -- Email: " + values[0] + " sid: " + values[1] + " IP: " + values[2]);
   let query = "SELECT * FROM session where email = $1 AND id = $2 AND ip = $3";
 
@@ -211,9 +212,10 @@ router.get("/groupMenuPage", async (req, res) => {
 
   // Assume the given user is not valid to begin with
   let authResult = false;
+  let ip = getClientIp(req);
 
   // Set up the query
-  const values = [cookies["email"], cookies["session"], req.ip];
+  const values = [cookies["email"], cookies["session"], ip];
   console.log("Authenticating -- Email: " + values[0] + " sid: " + values[1] + " IP: " + values[2]);
   let query = "SELECT * FROM session where email = $1 AND id = $2 AND ip = $3";
 
@@ -235,8 +237,8 @@ router.get("/groupMenuPage", async (req, res) => {
         res.status(401).redirect("/");
       } else {
         const query = "SELECT group_.groupid, group_.groupname, group_.groupdesc, group_.tagname as categorytag, users.first, users.last "
-                    + "FROM group_ JOIN users ON group_.leader = users.email "
-                    + "WHERE private = false; ";
+            + "FROM group_ JOIN users ON group_.leader = users.email "
+            + "WHERE private = false; ";
 
         client.query(query, [], (err, response) => {
           if (err){
@@ -246,7 +248,7 @@ router.get("/groupMenuPage", async (req, res) => {
           else {
             let groupInfo = response.rows;
             const query = "SELECT * "
-                        + "FROM grouptags ";
+                + "FROM grouptags ";
 
             client.query(query, [], (err, response) => {
               if (err) {
@@ -286,9 +288,10 @@ router.post("/groupMenuPage", async (req, res) => {
 
   // Assume the given user is not valid to begin with
   let authResult = false;
+  let ip = getClientIp(req);
 
   // Set up the query
-  const values = [cookies["email"], cookies["session"], req.ip];
+  const values = [cookies["email"], cookies["session"], ip];
   console.log("Authenticating -- Email: " + values[0] + " sid: " + values[1] + " IP: " + values[2]);
   let query = "SELECT * FROM session where email = $1 AND id = $2 AND ip = $3";
 
@@ -326,9 +329,10 @@ router.post("/createGroup", (req, res) => {
 
   // Assume the given user is not valid to begin with
   let authResult = false;
+  let ip = getClientIp(req);
 
   // Set up the query
-  const values = [cookies["email"], cookies["session"], req.ip];
+  const values = [cookies["email"], cookies["session"], ip];
   console.log("Authenticating -- Email: " + values[0] + " sid: " + values[1] + " IP: " + values[2]);
   let query = "SELECT * FROM session where email = $1 AND id = $2 AND ip = $3";
 
@@ -357,18 +361,19 @@ router.post("/createGroup", (req, res) => {
 
 //  Display the group page
 router.get("/groupPage/:groupID", (req, res) => {
-// Parse the cookies
+  // Parse the cookies
   const cookies = cookieParser(req);
 
-// Assume the given user is not valid to begin with
+  // Assume the given user is not valid to begin with
   let authResult = false;
+  let ip = getClientIp(req);
 
-// Set up the query
-  const values = [cookies["email"], cookies["session"], req.ip];
+  // Set up the query
+  const values = [cookies["email"], cookies["session"], ip];
   console.log("Authenticating -- Email: " + values[0] + " sid: " + values[1] + " IP: " + values[2]);
   let query = "SELECT * FROM session where email = $1 AND id = $2 AND ip = $3";
 
-// Check to see if the given values exist in the session table
+  // Check to see if the given values exist in the session table
   client.query(query, values, (err, response) => {
     if (err) {
       printError(err, "Unable to query when authenticating " + cookies["email"]);
@@ -473,9 +478,10 @@ router.post("/createPost", async (req, res) => {
 
   // Assume the given user is not valid to begin with
   let authResult = false;
+  let ip = getClientIp(req);
 
   // Set up the query
-  const values = [cookies["email"], cookies["session"], req.ip];
+  const values = [cookies["email"], cookies["session"], ip];
   console.log("Authenticating -- Email: " + values[0] + " sid: " + values[1] + " IP: " + values[2]);
   let query = "SELECT * FROM session where email = $1 AND id = $2 AND ip = $3";
 
@@ -509,9 +515,10 @@ router.post("/deletePost", async (req, res) => {
 
   // Assume the given user is not valid to begin with
   let authResult = false;
+  let ip = getClientIp(req);
 
   // Set up the query
-  const values = [cookies["email"], cookies["session"], req.ip];
+  const values = [cookies["email"], cookies["session"], ip];
   console.log("Authenticating -- Email: " + values[0] + " sid: " + values[1] + " IP: " + values[2]);
   let query = "SELECT * FROM session where email = $1 AND id = $2 AND ip = $3";
 
@@ -547,9 +554,10 @@ router.get("/groupBoardPage/:groupID/:boardID", async (req, res) => {
 
   // Assume the given user is not valid to begin with
   let authResult = false;
+  let ip = getClientIp(req);
 
   // Set up the query
-  const values = [cookies["email"], cookies["session"], req.ip];
+  const values = [cookies["email"], cookies["session"], ip];
   console.log("Authenticating -- Email: " + values[0] + " sid: " + values[1] + " IP: " + values[2]);
   let query = "SELECT * FROM session where email = $1 AND id = $2 AND ip = $3";
 
@@ -583,9 +591,10 @@ router.get("/groupPage/:groupID/groupBoardPage/:boardID", async (req, res) => {
 
   // Assume the given user is not valid to begin with
   let authResult = false;
+  let ip = getClientIp(req);
 
   // Set up the query
-  const values = [cookies["email"], cookies["session"], req.ip];
+  const values = [cookies["email"], cookies["session"], ip];
   console.log("Authenticating -- Email: " + values[0] + " sid: " + values[1] + " IP: " + values[2]);
   let query = "SELECT * FROM session where email = $1 AND id = $2 AND ip = $3";
 
@@ -619,9 +628,9 @@ router.post("/addBoard", async (req, res) => {
 
   // Assume the given user is not valid to begin with
   let authResult = false;
-
+  let ip = getClientIp(req);
   // Set up the query
-  const values = [cookies["email"], cookies["session"], req.ip];
+  const values = [cookies["email"], cookies["session"], ip];
   console.log("Authenticating -- Email: " + values[0] + " sid: " + values[1] + " IP: " + values[2]);
   let query = "SELECT * FROM session where email = $1 AND id = $2 AND ip = $3";
 
@@ -653,11 +662,11 @@ router.post("/deleteBoard", async (req, res) => {
   // Parse the cookies
   const cookies = cookieParser(req);
 
-// Assume the given user is not valid to begin with
+  // Assume the given user is not valid to begin with
   let authResult = false;
-
-// Set up the query
-  const values = [cookies["email"], cookies["session"], req.ip];
+  let ip = getClientIp(req);
+  // Set up the query
+  const values = [cookies["email"], cookies["session"], ip];
   console.log("Authenticating -- Email: " + values[0] + " sid: " + values[1] + " IP: " + values[2]);
   let query = "SELECT * FROM session where email = $1 AND id = $2 AND ip = $3";
 
@@ -693,15 +702,16 @@ router.post("/groupInviteUser", async (req, res) => {
   // Parse the cookies
   const cookies = cookieParser(req);
 
-// Assume the given user is not valid to begin with
+  // Assume the given user is not valid to begin with
   let authResult = false;
+  let ip = getClientIp(req);
 
-// Set up the query
-  const values = [cookies["email"], cookies["session"], req.ip];
+  // Set up the query
+  const values = [cookies["email"], cookies["session"], ip];
   console.log("Authenticating -- Email: " + values[0] + " sid: " + values[1] + " IP: " + values[2]);
   let query = "SELECT * FROM session where email = $1 AND id = $2 AND ip = $3";
 
-// Check to see if the given values exist in the session table
+  // Check to see if the given values exist in the session table
   client.query(query, values, (err, response) => {
     if (err) {
       printError(err, "Unable to query when authenticating " + cookies["email"]);
@@ -745,7 +755,7 @@ router.post("/groupInviteUser", async (req, res) => {
   let authResult = false;
 
 // Set up the query
-  const values = [cookies["email"], cookies["session"], req.ip];
+  const values = [cookies["email"], cookies["session"], ip];
   console.log("Authenticating -- Email: " + values[0] + " sid: " + values[1] + " IP: " + values[2]);
   let query = "SELECT * FROM session where email = $1 AND id = $2 AND ip = $3";
 
@@ -787,9 +797,9 @@ router.post("/cubvotePost", async (req, res) => {
 
   // Assume the given user is not valid to begin with
   let authResult = false;
-
+  let ip = getClientIp(req);
   // Set up the query
-  const values = [cookies["email"], cookies["session"], req.ip];
+  const values = [cookies["email"], cookies["session"], ip];
   console.log("Authenticating -- Email: " + values[0] + " sid: " + values[1] + " IP: " + values[2]);
   let query = "SELECT * FROM session where email = $1 AND id = $2 AND ip = $3";
 
@@ -824,9 +834,9 @@ router.post("/eventInviteUser", async (req, res) => {
 
   // Assume the given user is not valid to begin with
   let authResult = false;
-
+  let ip = getClientIp(req);
   // Set up the query
-  const values = [cookies["email"], cookies["session"], req.ip];
+  const values = [cookies["email"], cookies["session"], ip];
   console.log("Authenticating -- Email: " + values[0] + " sid: " + values[1] + " IP: " + values[2]);
   let query = "SELECT * FROM session where email = $1 AND id = $2 AND ip = $3";
 
@@ -865,9 +875,9 @@ router.post("/createEvent", async (req, res) => {
 
   // Assume the given user is not valid to begin with
   let authResult = false;
-
+  let ip = getClientIp(req);
   // Set up the query
-  const values = [cookies["email"], cookies["session"], req.ip];
+  const values = [cookies["email"], cookies["session"], ip];
   console.log("Authenticating -- Email: " + values[0] + " sid: " + values[1] + " IP: " + values[2]);
   let query = "SELECT * FROM session where email = $1 AND id = $2 AND ip = $3";
 
@@ -901,9 +911,9 @@ router.get("/eventHomePage/:eventID", async (req, res) => {
 
   // Assume the given user is not valid to begin with
   let authResult = false;
-
+  let ip = getClientIp(req);
   // Set up the query
-  const values = [cookies["email"], cookies["session"], req.ip];
+  const values = [cookies["email"], cookies["session"], ip];
   console.log("Authenticating -- Email: " + values[0] + " sid: " + values[1] + " IP: " + values[2]);
   let query = "SELECT * FROM session where email = $1 AND id = $2 AND ip = $3";
 
@@ -1004,9 +1014,9 @@ router.post("/addGroupTag", async (req, res) => {
 
   // Assume the given user is not valid to begin with
   let authResult = false;
-
+  let ip = getClientIp(req);
   // Set up the query
-  const values = [cookies["email"], cookies["session"], req.ip];
+  const values = [cookies["email"], cookies["session"], ip];
   console.log("Authenticating -- Email: " + values[0] + " sid: " + values[1] + " IP: " + values[2]);
   let query = "SELECT * FROM session where email = $1 AND id = $2 AND ip = $3";
 
@@ -1088,9 +1098,9 @@ router.post("/editGroup", async (req, res) => {
 
   // Assume the given user is not valid to begin with
   let authResult = false;
-
+  let ip = getClientIp(req);
   // Set up the query
-  const values = [cookies["email"], cookies["session"], req.ip];
+  const values = [cookies["email"], cookies["session"], ip];
   console.log("Authenticating -- Email: " + values[0] + " sid: " + values[1] + " IP: " + values[2]);
   let query = "SELECT * FROM session where email = $1 AND id = $2 AND ip = $3";
 
@@ -1177,9 +1187,9 @@ router.post("/createTag", async (req, res) => {
 
   // Assume the given user is not valid to begin with
   let authResult = false;
-
+  let ip = getClientIp(req);
   // Set up the query
-  const values = [cookies["email"], cookies["session"], req.ip];
+  const values = [cookies["email"], cookies["session"], ip];
   console.log("Authenticating -- Email: " + values[0] + " sid: " + values[1] + " IP: " + values[2]);
   let query = "SELECT * FROM session where email = $1 AND id = $2 AND ip = $3";
 
@@ -1214,9 +1224,9 @@ router.get("/invites", async (req, res) => {
 
   // Assume the given user is not valid to begin with
   let authResult = false;
-
+  let ip = getClientIp(req);
   // Set up the query
-  const values = [cookies["email"], cookies["session"], req.ip];
+  const values = [cookies["email"], cookies["session"], ip];
   console.log("Authenticating -- Email: " + values[0] + " sid: " + values[1] + " IP: " + values[2]);
   let query = "SELECT * FROM session where email = $1 AND id = $2 AND ip = $3";
 
@@ -1250,9 +1260,9 @@ router.get("/joinGroup/:groupID", async (req, res) => {
 
   // Assume the given user is not valid to begin with
   let authResult = false;
-
+  let ip = getClientIp(req);
   // Set up the query
-  const values = [cookies["email"], cookies["session"], req.ip];
+  const values = [cookies["email"], cookies["session"], ip];
   console.log("Authenticating -- Email: " + values[0] + " sid: " + values[1] + " IP: " + values[2]);
   let query = "SELECT * FROM session where email = $1 AND id = $2 AND ip = $3";
 
@@ -1293,9 +1303,9 @@ router.get("/declineGroup/:groupID", async (req, res) => {
 
   // Assume the given user is not valid to begin with
   let authResult = false;
-
+  let ip = getClientIp(req);
   // Set up the query
-  const values = [cookies["email"], cookies["session"], req.ip];
+  const values = [cookies["email"], cookies["session"], ip];
   console.log("Authenticating -- Email: " + values[0] + " sid: " + values[1] + " IP: " + values[2]);
   let query = "SELECT * FROM session where email = $1 AND id = $2 AND ip = $3";
 
@@ -1337,9 +1347,9 @@ router.get("/joinEvent/:eventID", async (req, res) => {
 
   // Assume the given user is not valid to begin with
   let authResult = false;
-
+  let ip = getClientIp(req);
   // Set up the query
-  const values = [cookies["email"], cookies["session"], req.ip];
+  const values = [cookies["email"], cookies["session"], ip];
   console.log("Authenticating -- Email: " + values[0] + " sid: " + values[1] + " IP: " + values[2]);
   let query = "SELECT * FROM session where email = $1 AND id = $2 AND ip = $3";
 
@@ -1380,9 +1390,9 @@ router.get("/declineEvent/:eventID", async (req, res) => {
 
   // Assume the given user is not valid to begin with
   let authResult = false;
-
+  let ip = getClientIp(req);
   // Set up the query
-  const values = [cookies["email"], cookies["session"], req.ip];
+  const values = [cookies["email"], cookies["session"], ip];
   console.log("Authenticating -- Email: " + values[0] + " sid: " + values[1] + " IP: " + values[2]);
   let query = "SELECT * FROM session where email = $1 AND id = $2 AND ip = $3";
 
@@ -1423,9 +1433,9 @@ router.post("groupInfoPage", async (req, res) => {
 
   // Assume the given user is not valid to begin with
   let authResult = false;
-
+  let ip = getClientIp(req);
   // Set up the query
-  const values = [cookies["email"], cookies["session"], req.ip];
+  const values = [cookies["email"], cookies["session"], ip];
   console.log("Authenticating -- Email: " + values[0] + " sid: " + values[1] + " IP: " + values[2]);
   let query = "SELECT * FROM session where email = $1 AND id = $2 AND ip = $3";
 
@@ -1459,9 +1469,9 @@ router.get("groupPage/:groupID/groupInfo", async (req, res) => {
 
   // Assume the given user is not valid to begin with
   let authResult = false;
-
+  let ip = getClientIp(req);
   // Set up the query
-  const values = [cookies["email"], cookies["session"], req.ip];
+  const values = [cookies["email"], cookies["session"], ip];
   console.log("Authenticating -- Email: " + values[0] + " sid: " + values[1] + " IP: " + values[2]);
   let query = "SELECT * FROM session where email = $1 AND id = $2 AND ip = $3";
 
@@ -1566,7 +1576,7 @@ async function login(req, res) {
         // => Delete any sessions with the current IP address
         const query = "DELETE FROM session WHERE ip = $1 AND email = $2";
         const values = [ip, loginEmail];
-        
+
         client.query(query, values, async (err, response) => {
           if (err) {
             printError(err, "2");
@@ -1582,7 +1592,7 @@ async function login(req, res) {
             console.log("IP ADDRESS: " + req.ip);
             console.log("IP ADDRESSES: " + req.ips);
             console.log("FUNCTION IP: " + ip);
-            
+
 
             // Store the session in the database
             client.query(query, values, (err, response) => {
@@ -2389,14 +2399,14 @@ function displayGroupInfo(req, res) {
 }
 
 function getClientIp(req) {
-  var ipAddress;
+  let ipAddress;
   // Amazon EC2 / Heroku workaround to get real client IP
-  var forwardedIpsStr = req.header('x-forwarded-for'); 
+  const forwardedIpsStr = req.header('x-forwarded-for');
   if (forwardedIpsStr) {
     // 'x-forwarded-for' header may return multiple IP addresses in
     // the format: "client IP, proxy 1 IP, proxy 2 IP" so take the
     // the first one
-    var forwardedIps = forwardedIpsStr.split(',');
+    const forwardedIps = forwardedIpsStr.split(',');
     ipAddress = forwardedIps[0];
   }
   if (!ipAddress) {
@@ -2405,4 +2415,4 @@ function getClientIp(req) {
     ipAddress = req.connection.remoteAddress;
   }
   return ipAddress;
-};
+}
