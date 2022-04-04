@@ -428,7 +428,8 @@ router.get("/groupPage/:groupID", (req, res) => {
                   const values = [req.params["groupID"], new Date.now()];
                   client.query(query2, values, (err, response) => {
                     if (err) printError(err, "Error retrieving events (002)")
-                    else {
+                    else
+                    {
                       events = response.rows;
 
                       // Fetch boards
