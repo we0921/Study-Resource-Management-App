@@ -231,7 +231,7 @@ function setOnClicks() {
                 url: '/editBoard',
                 method: 'POST',
                 data: {
-                    boardid: board.board.id,
+                    boardid: board.boardid,
                     boardname: boardname,
                     boarddesc: boarddesc,
                     email: data.email
