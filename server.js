@@ -434,7 +434,7 @@ router.get("/groupPage/:groupID", (req, res) => {
                      
                       response.rows.forEach((row) => {
                         console.log(row);
-                        if (row.endunix <= date) {
+                        if (row.endunix >= date) {
                             events.push(row);
                         } else console.log("EVENT EXPIRED");
                       });
