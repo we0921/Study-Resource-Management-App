@@ -1121,19 +1121,19 @@ router.post("/editEventInfo", async (req, res) => {
         res.clearCookie("session");
         res.status(401).redirect("/");
       } else {
-        let eventName = req.body.eventname;
+        let eventName = req.body.eventName;
         let eventDesc = req.body.eventDesc;
         let eventID = req.body.eventID;
 
         const query =
             "UPDATE event " +
-            "SET eventname = $1 " +
+            "SET eventname = $1, " +
             "eventdesc = $2 " +
             "WHERE eventID = $3";
         client.query(query, [eventName, eventDesc, eventID], async (err, response) => {
           if (err) printError(err, "Failed to update event info");
           else {
-            res.status(200);
+            res.redirect("/eventHomePage/" + eventID);
           }
         });
       }

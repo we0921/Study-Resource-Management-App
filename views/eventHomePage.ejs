@@ -23,6 +23,7 @@
 <h1>Start Time: <%=obj.event.starttime%> - End Time: <%=obj.event.endtime%></h1>
 <h1>Attendees</h1>
     <button class="btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#inviteModal">Invite Members</button>
+   <button class="btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#editEventInfo">Edit Event Information</button>
 
 <div class="container-fluid">
     <% let counter = 0;%>
@@ -75,7 +76,6 @@
                         <div class="form-group" style = "display: none" style = "visibility: collapse">
                             <input id = "eventID" type="text" name = "eventID" class="form-control" value="<%=obj.event.eventid%>">
                         </div>
-
                         <button type="submit" class="btn btn-primary">Invite</button>
                     </form>
                 </div>
@@ -83,6 +83,31 @@
         </div>
     </div>
 
+   <!-- Create Invite Modal -->
+   <div class="modal fade" id="editEventInfo" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+       <div class="modal-dialog">
+           <div class="modal-content">
+               <div class="modal-header">
+                   <h5 class="modal-title" id="exampleModalLabel">Event Info</h5>
+                   <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+               </div>
+               <div class="modal-body">
+                   <form id ="postReq" action = "/editEventInfo" method = "post">
+                       <div class="form-group fields">
+                       </div>
+                       <div class="form-group">
+                           <input id = "eventID" style = "display:none" type="text" name = "eventID" class="form-control" value="<%=obj.event.eventid%>">
+                           <label for="eventDesc">Event Name</label>
+                           <input id = "eventName" type = "text" name = "eventName" class="form-control" value="<%=obj.event.eventname%>">
+                           <label for="eventDesc">Event Description</label>
+                           <input id = "eventDesc" type = "text" name = "eventDesc" class="form-control" value="<%=obj.event.eventdesc%>">
+                       </div>
+                       <button type="submit" class="btn btn-primary">Save changes</button>
+                   </form>
+               </div>
+           </div>
+       </div>
+   </div>
 
 </body>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.min.js"></script>
