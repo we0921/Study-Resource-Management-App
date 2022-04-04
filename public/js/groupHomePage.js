@@ -20,6 +20,10 @@ document.addEventListener('DOMContentLoaded', (event) => {
         data.events.push(event);
         fillGroups();
     });
+    socket.on("editEvent", async (event) => {
+        console.log("Event edited");
+        console.log(event);
+    });
 
     if (data.email !== data.group.leader) {
         document.getElementById("addTagButton").style.display = "none";

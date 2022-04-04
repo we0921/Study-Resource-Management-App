@@ -234,13 +234,42 @@ router.get("/groupMenuPage", async (req, res) => {
         res.clearCookie("session");
         res.status(401).redirect("/");
       } else {
-        const query = "WITH temptable AS(SELECT * FROM group_ JOIN users ON group_.leader = users.email NATURAL JOIN grouptags WHERE private = false) " +
-            " SELECT groupid, tagname, groupname, groupdesc, pic, first, last FROM temptable LEFT JOIN grouppictures gp USING(groupid)";
-        // groupid, tagname, groupdesc, groupname, pic, first, last
-        client.query(query, (err, response) => {
-          if (err) console.log(err.stack);
+        const query = "SELECT group_.groupid, group_.groupname, group_.groupdesc, group_.tagname as categorytag, users.first, users.last "
+                    + "FROM group_ JOIN users ON group_.leader = users.email "
+                    + "WHERE private = false; ";
+
+        client.query(query, [], (err, response) => {
+          if (err){
+            printError(err, "Error retrieving group info (001)");
+            res.status(503).send("Error retrieving group info (001)");
+          }
           else {
-            res.render("groupMenuPage", {groups: response.rows});
+            let groupInfo = response.rows;
+            const query = "SELECT * "
+                        + "FROM grouptags ";
+
+            client.query(query, [], (err, response) => {
+              if (err) {
+                printError(err, "Error retrieving group tags (002)");
+                res.status(503).send("Error retrieving group tags (002)");
+              }
+              else {
+                // let grouptags = new Map();
+                let grouptags = [];
+                response.rows.forEach((row) => {
+                  if (grouptags[row.groupid] === undefined) {
+                    grouptags[row.groupid] = [];
+                  }
+                  grouptags[row.groupid].push(row.tagname);
+                });
+
+                groupInfo.forEach((group) => {
+                  group.tags = grouptags[group.groupid];
+                });
+
+                res.render("groupMenuPage", {groups: groupInfo, data: JSON.stringify(groupInfo)});
+              }
+            });
           }
         });
       }
@@ -1561,52 +1590,52 @@ async function login(req, res) {
 
 }
 async function register(req, res) {
-    // Grab the register info
-    let regEmail = req.body.registerEmail;
-    let regPass = req.body.registerPassword;
-    let first = req.body.first;
-    let last = req.body.last;
+  // Grab the register info
+  let regEmail = req.body.registerEmail;
+  let regPass = req.body.registerPassword;
+  let first = req.body.first;
+  let last = req.body.last;
 
-    // Set up the query
-    // create a query
-    const query = "INSERT INTO users (email, password, first, last, bio, status, location) VALUES($1, $2, $3, $4, $5, $6, $7, $8)";
-    const values = [regEmail, regPass, first, last, "", false, ""];
+  // Set up the query
+  // create a query
+  const query = "INSERT INTO users (email, password, first, last, bio, status, location) VALUES($1, $2, $3, $4, $5, $6, $7)";
+  const values = [regEmail, regPass, first, last, "", false, ""];
 
-    // Execute insert query
-    client.query(query, values, (err, response) => {
-      // if an error happens, the user is trying to use an email that already exists
-      if (err) {
-        console.log(err.stack);
-        let login_reg_status = {
-          status: "register-fail"
-        };
-        // send back to the login page
-        res.render("login", {status: JSON.stringify(login_reg_status)});
-      }
-      // register successful
-      else {
-        let login_reg_status = {
-          status: "register-success"
-        };
-        // send back to the login page
-        res.render("login", {status: JSON.stringify(login_reg_status)});
-      }
-    });
-  }
+  // Execute insert query
+  client.query(query, values, (err, response) => {
+    // if an error happens, the user is trying to use an email that already exists
+    if (err) {
+      console.log(err.stack);
+      let login_reg_status = {
+        status: "register-fail"
+      };
+      // send back to the login page
+      res.render("login", {status: JSON.stringify(login_reg_status)});
+    }
+    // register successful
+    else {
+      let login_reg_status = {
+        status: "register-success"
+      };
+      // send back to the login page
+      res.render("login", {status: JSON.stringify(login_reg_status)});
+    }
+  });
+}
 
 // [DONE] Parses cookies in the header of the req
 function cookieParser(req) {
-    let rawCookies = req.headers.cookie.split('; ');
-    let parsedCookies = {};
-    rawCookies.forEach(rc => {
-      let pc = rc.split('=');
-      parsedCookies[pc[0]] = pc[1];
-    });
+  let rawCookies = req.headers.cookie.split('; ');
+  let parsedCookies = {};
+  rawCookies.forEach(rc => {
+    let pc = rc.split('=');
+    parsedCookies[pc[0]] = pc[1];
+  });
 
-    parsedCookies["email"] = decodeURIComponent(parsedCookies["email"]);
+  parsedCookies["email"] = decodeURIComponent(parsedCookies["email"]);
 
-    return parsedCookies;
-  }
+  return parsedCookies;
+}
 
 // [DONE]
 // Displays the posts for a given board in a given group
@@ -2078,45 +2107,31 @@ function groupInviteUser(req, res, userEmail, inviteEmail, groupID) {
       else if (response.rows.length !== 0) {
         // The user inviting the person IS in the group
 
-        // Put the invitee in the member_ table
-        let query = "INSERT INTO member_ VALUES($1, $2, $3, $4, $4, $6, $6)";
-        let values = [inviteEmail, groupID, status, inviteDate, false];
-        client.query(query, values, (err, response) => {
-          if (err) printError(err, "User: " + inviteEmail + "=> cannot be insert into member_ table");
-          else {
-            let query = "SELECT groupname "
-                + "FROM group_ "
-                + "WHERE groupid = $1";
-            client.query(query, [groupID], (err, response) => {
-              if (err) printError(err, "groupid: " + groupID + " => not in group_ table");
-              else {
-                let groupname = response.rows[0];
-                let invObj = {
-                  type: "groupInvite",
-                  groupName: groupname,
-                  groupID: groupID,
-                  inviteDate: inviteDate
-                }
-
-                //console.log("1111+++++++++++=111+++++++++++++");
-                //console.log("I AM ABOUT TO SEND AN INVITE TO " + inviteEmail);
-                //console.log("1111+++++++++++=111+++++++++++++");
-                //sending notification to invited user
-                //io.sockets.in(inviteEmail).emit('invitedToGroup', invObj);
-
-                //notifying user that a request was sent to the invited user
-                let data = {requestSent: true}
-                res.json(data);
-              }
-            });
-          }
-        });
-      }
-    });
-  } else {
-    console.log("Invalid Invite Request:");
-    res.status(403);
-  }
+      // Put the invitee in the member_ table
+      let query = "INSERT INTO member_ VALUES($1, $2, $3, $4, $4, $5, $5)";
+      let values = [inviteEmail, groupID, false, inviteDate, false];
+      client.query(query, values, (err, response) => {
+        if (err) {
+          printError(err, "User: " + inviteEmail + "=> cannot be insert into member_ table");
+          res.status(503);
+        }
+        else {
+          let query = "SELECT groupname "
+              + "FROM group_ "
+              + "WHERE groupid = $1";
+          client.query(query, [groupID], (err, response) => {
+            if (err) {
+              printError(err, "groupid: " + groupID + " => not in group_ table");
+              res.status(503);
+            }
+            else {
+              res.status(201).send("Invite sent!");
+            }
+          });
+        }
+      });
+    }
+  });
 }
 
 // [DONE]
@@ -2148,16 +2163,16 @@ function createEvent(email, eventName, eventDesc, time, groupID, res) {
         if (err) printError(err, "Error creating event");
         else {
           let event = {enddate: endDate,
-                      endtime: endTime,
-                      endunix: endUnix,
-                      eventdesc: eventDesc,
-                      eventid: eId,
-                      eventname: eventName,
-                      groupid: groupID,
-                      host: email,
-                      startdate: startDate,
-                      starttime: startTime,
-                      startunix: startUnix}
+            endtime: endTime,
+            endunix: endUnix,
+            eventdesc: eventDesc,
+            eventid: eId,
+            eventname: eventName,
+            groupid: groupID,
+            host: email,
+            startdate: startDate,
+            starttime: startTime,
+            startunix: startUnix}
           console.log("Emitting event to: " + groupID);
           io.to(groupID).emit("newEvent", event);
           console.log("After event emit");
@@ -2170,6 +2185,22 @@ function createEvent(email, eventName, eventDesc, time, groupID, res) {
   });
 }
 
+
+function editEvent(req, res, eventName, eventDesc, eventID) {
+  const query =
+      "UPDATE event " +
+      "SET eventname = $1 " +
+      "eventdesc = $2 " +
+      "WHERE eventID = $3 ";
+  const values = [eventID, eventDesc, eventID]
+  client.query(query, values, (err, response) => {
+    if (err) {
+      printError(err, "Error retrieving owner of post (001)");
+    } else {
+
+    }
+  });
+}
 // [DONE] displays the invites page
 function showInvites(email, res) {
   // Get the user's information
@@ -2183,33 +2214,33 @@ function showInvites(email, res) {
 
       // getting the events they've been invited to // can change
       const query = "WITH eventsInvited AS (SELECT * FROM attend WHERE email = $1 and attending = false) " +
-            "SELECT * FROM event natural join eventsInvited";
-        client.query(query, [email], (err, response) => {
-          if (err) printError(err, "Error retrieving event invitations");
-          else {
-            events = response.rows;
+          "SELECT * FROM event natural join eventsInvited";
+      client.query(query, [email], (err, response) => {
+        if (err) printError(err, "Error retrieving event invitations");
+        else {
+          events = response.rows;
 
-            // getting the groups they have been invited to // can change
-            const query = "WITH groupsInvited AS (SELECT * FROM member_ WHERE email = $1 and status = false) "
-                        + "SELECT * FROM group_ natural join groupsInvited"
-            client.query(query, [email], (err, response) => {
-              if (err) printError(err, "Error retrieving group invitations");
-              else {
-                groups = response.rows;
-                const obj = {
-                  user: user,
-                  events: events,
-                  groups: groups
-                }
-                console.log(obj);
-                res.render("invites", {obj: obj});
+          // getting the groups they have been invited to // can change
+          const query = "WITH groupsInvited AS (SELECT * FROM member_ WHERE email = $1 and status = false) "
+              + "SELECT * FROM group_ natural join groupsInvited"
+          client.query(query, [email], (err, response) => {
+            if (err) printError(err, "Error retrieving group invitations");
+            else {
+              groups = response.rows;
+              const obj = {
+                user: user,
+                events: events,
+                groups: groups
               }
-            });
-          }
-        });
-      }
-    });
-  }
+              console.log(obj);
+              res.render("invites", {obj: obj});
+            }
+          });
+        }
+      });
+    }
+  });
+}
 
 // [DONE] Updated changePostVote
 // Add or remove a user's vote for a post
@@ -2249,8 +2280,8 @@ function changePostVote(req, res) {
               } else {
                 console.log("Emitting: " + postid + " " + postowner + " " + true);
                 let postInfo = {postid: postid,
-                                postowner: postowner,
-                                increase: true};
+                  postowner: postowner,
+                  increase: true};
                 io.to(groupID + "/" + boardID).emit("changeVote", postInfo);
 
                 res.status(200);
@@ -2266,8 +2297,8 @@ function changePostVote(req, res) {
               } else {
                 console.log("Emitting: " + postid + " " + postowner + " " + false);
                 let postInfo = {postid: postid,
-                                postowner: postowner,
-                                increase: false};
+                  postowner: postowner,
+                  increase: false};
 
                 io.to(groupID + "/" + boardID).emit("changeVote", postInfo);
                 res.status(201);
@@ -2296,7 +2327,7 @@ function changePostVote(req, res) {
 // }
 
 // [DONE] Adds a tag to a group
-async function addGroupTag(groupTag, groupID) {
+function addGroupTag(groupTag, groupID) {
   // Checking if the tag already exists
   const query =
       "SELECT tagname " +

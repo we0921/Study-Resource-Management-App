@@ -84,7 +84,7 @@
       <% let counter = 0;%>
       <% let rowClosed; %>
       <% groups.forEach((group) => { %>
-        <% if (group.tagnames != "Course") return;%>
+        <% if (group.categorytag != "Course") return;%>
         <%# if we hit a 4th? item, create a new row  %>
         <% if (counter % 4 == 0) { %>
         <section class="wrapper">
@@ -94,17 +94,17 @@
           <% } %>
 
               <% if (group.pic != null) {%>
-              <div class="col-md-4"><div onclick="enterGroup('<%=group.group_id%>')" class="card text-white card-has-bg click-col" style="background-image:url('<%=group.pic%>');">
+              <div class="col-md-4"><div onclick="enterGroup('<%=group.groupid%>')" class="card text-white card-has-bg click-col" style="background-image:url('<%=group.pic%>');">
               <%} else {%>
                 <%let newUrl = "https://source.unsplash.com/600x900/?" + randURL(2);%>
-              <div class="col-md-4"><div onclick="enterGroup('<%=group.group_id%>')" class="card text-white card-has-bg click-col" style="background-image:url('<%=newUrl%>');">
+              <div class="col-md-4"><div onclick="enterGroup('<%=group.groupid%>')" class="card text-white card-has-bg click-col" style="background-image:url('<%=newUrl%>');">
               <%}%>
                   <img class="card-img d-none" src="" alt="Goverment Lorem Ipsum Sit Amet Consectetur dipisi?">
                   <div class="card-img-overlay d-flex flex-column">
                     <div class="card-body">
-                      <small class="card-meta mb-2"><%=group.tagnames%></small>
-                      <h4 class="card-title mt-0 "><a class="text-white" herf="#"><%=group.group_name%></a></h4>
-                      <small><i class="far fa-clock"></i><%=group.group_desc%> </small>
+                      <small class="card-meta mb-2"><%=group.tags%></small>
+                      <h4 class="card-title mt-0 "><a class="text-white" herf="#"><%=group.groupname%></a></h4>
+                      <small><i class="far fa-clock"></i><%=group.groupdesc%> </small>
                     </div>
                     <div class="card-footer">
                       <div class="media">
@@ -133,7 +133,7 @@
     <% counter = 0;%>
     <% rowClosed = false; %>
     <% groups.forEach((group) => { %>
-      <% if (group.tagnames != "Extracurricular") return;%>
+      <% if (group.categorytag != "Extracurricular") return;%>
       <%# if we hit a 4th? item, create a new row  %>
       <% if (counter % 4 == 0) { %>
       <section class="wrapper">
@@ -143,24 +143,23 @@
             <% } %>
 
             <% if (group.pic != null) {%>
-            <div class="col-md-4"><div onclick="enterGroup('<%=group.group_id%>')" class="card text-white card-has-bg click-col" style="background-image:url('<%=group.pic%>');">
+            <div class="col-md-4"><div onclick="enterGroup('<%=group.groupid%>')" class="card text-white card-has-bg click-col" style="background-image:url('<%=group.pic%>');">
                 <%} else {%>
                   <%let newUrl = "https://source.unsplash.com/600x900/?" + randURL(2);%>
-                <div class="col-md-4"><div onclick="enterGroup('<%=group.group_id%>')" class="card text-white card-has-bg click-col" style="background-image:url('<%=newUrl%>');">
+                <div class="col-md-4"><div onclick="enterGroup('<%=group.groupid%>')" class="card text-white card-has-bg click-col" style="background-image:url('<%=newUrl%>');">
                     <%}%>
                     <img class="card-img d-none" src="" alt="Goverment Lorem Ipsum Sit Amet Consectetur dipisi?">
                     <div class="card-img-overlay d-flex flex-column">
                       <div class="card-body">
-                        <small class="card-meta mb-2"><%=group.tagnames%></small>
-                        <h4 class="card-title mt-0 "><a class="text-white" herf="#"><%=group.group_name%></a></h4>
-                        <small><i class="far fa-clock"></i><%=group.group_desc%> </small>
+                        <small class="card-meta mb-2"><%=group.categorytag%></small>
+                        <h4 class="card-title mt-0 "><a class="text-white" herf="#"><%=group.groupname%></a></h4>
+                        <small><i class="far fa-clock"></i><%=group.groupdesc%> </small>
                       </div>
                       <div class="card-footer">
                         <div class="media">
                           <img class="mr-3 rounded-circle" src="https://cdn0.iconfinder.com/data/icons/user-pictures/100/male-512.png" alt="Generic placeholder image" style="max-width:50px">
                           <div class="media-body">
                             <h6 class="my-0 text-white d-block"><%=group.first%> <%=group.last%></h6>
-                            <small>Reputation Level: <%=group.cubvotes%></small>
                           </div>
                         </div>
                       </div>
@@ -182,7 +181,7 @@
     <% counter = 0;%>
     <% rowClosed = false; %>
     <% groups.forEach((group) => { %>
-      <% if (group.tagnames != "Other") return;%>
+      <% if (group.categorytag != "Other") return;%>
       <%# if we hit a 4th? item, create a new row  %>
       <% if (counter % 4 == 0) { %>
       <section class="wrapper">
@@ -232,7 +231,7 @@
     <input id="groupID" type="text" name="group_id" style="display:none" value="">
     <input type="text" name="reqType" style="display:none" value="groupMenuPage">
   </form>
-
+  <div id = "data"><%=data%></div>
   <script>
     function enterGroup(group){
       console.log(group);
