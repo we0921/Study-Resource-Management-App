@@ -1589,7 +1589,7 @@ router.post("/editBoard", async (req, res) => {
               }
               else {
                 console.log("req.body.email: " + req.body.email);
-                console.log("cookies["email"]: " + cookies["email"]);
+                console.log("cookies[email]: " + cookies["email"]);
                 console.log("leader: " + response.rows[0].leader);
                 
                 
