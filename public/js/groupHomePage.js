@@ -206,7 +206,7 @@ $('#editGroupSubmit').click(function (e) {
 // Toggle visibility of board delete buttons
 $('#editBoardButton').click((e) => {
     e.preventDefault();
-
+    
     editingBoards = !editingBoards;
 
     if (editingBoards) {
@@ -217,6 +217,11 @@ $('#editBoardButton').click((e) => {
         });
     } else {
         data.boards.forEach((board) => {
+            let groupname = document.getElementById("editName" + board.boardid).value; 
+            document.getElementById("boardName" + board.boardid).value = groupname;
+            let groupdesc = document.getElementById("editDesc" + board.boardid).value; 
+            document.getElementById("boardDesc" + board.boardid).value = groupdesc;
+            
             document.getElementById("anchor" + board.boardid).className = "list-group-item list-group-item-action";
             document.getElementById("delete" + board.boardid).style.display = "none";
             document.getElementById("edit" + board.boardid).style.display = "none";
