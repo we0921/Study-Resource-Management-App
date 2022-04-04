@@ -423,15 +423,18 @@ router.get("/groupPage/:groupID", (req, res) => {
                   groupInfo = response.rows[0];
 
                   // Fetch events
-                  const query2 = "SELECT * FROM event WHERE groupid = $1 && endunix >= $2";
+                  const query2 = "SELECT * FROM event WHERE groupid = $1";
                   console.log("Finished event query");
-                  let date = Date.now();
-                  const values = [req.params["groupID"], new String(date)];
+                  let date = new String(Date.now());
+                  const values = [req.params["groupID"]];
                   client.query(query2, values, (err, response) => {
                     if (err) printError(err, "Error retrieving events (002)")
                     else
                     {
-                      events = response.rows;
+                      response.rows.forEach((row) => {
+                        if (row.endunix <= date)
+                          events.push(row);
+                      });
 
                       // Fetch boards
                       const query3 = "SELECT * from board natural join boardlist WHERE groupid = $1"
