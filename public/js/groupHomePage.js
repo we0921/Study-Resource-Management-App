@@ -307,6 +307,7 @@ function createEvent (event) {
 
     let eventAnchor = document.createElement("a");
     eventAnchor.className = "list-group-item list-group-item-action";
+    eventAnchor.style.width = "100%";
     eventAnchor.href = url;
 
     let eventCard = document.createElement("div");
@@ -343,6 +344,7 @@ function createBoard (board) {
     boardAnchor.className = "list-group-item list-group-item-action";
     boardAnchor.href = "/groupBoardPage/" + data.group.groupid + "/" + board.boardid;
     boardAnchor.id = "anchor" + board.boardid;
+    boardAnchor.style.width = "100%";
 
     // Card that holds the info
     let boardCard = document.createElement("div");
