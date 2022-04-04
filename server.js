@@ -394,7 +394,7 @@ router.get("/groupPage/:groupID", (req, res) => {
         res.status(401).redirect("/");
       } else {
         // Variable declarations
-        let groupInfo, events, boards, tags;
+        let groupInfo, events = [], boards, tags;
 
         // Determine if the user is in the group
         const query = "SELECT * from member_ WHERE email = $1 AND groupid = $2 AND banned = false";
