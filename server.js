@@ -379,6 +379,8 @@ router.get("/groupPage/:groupID", (req, res) => {
         const date = new Date();
         authResult = date.toISOString() <= String(response.rows[0].expires);
         console.log("Setting auth result to: " + authResult);
+      } else {
+        console.log("Auth query returned no results");
       }
       // If authResult is still false -> Invalidate session and send to login
       if (!authResult) {
