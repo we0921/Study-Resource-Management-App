@@ -2447,7 +2447,7 @@ function showInvites(email, res) {
               groups = response.rows;
               const obj = {
                 user: user,
-                events: events,
+                event: events,
                 groups: groups
               }
               console.log(obj);
