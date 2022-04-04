@@ -221,7 +221,7 @@ function setOnClicks() {
             // Hide the edit button for this group
             document.getElementById("edit" + board.boardid).style.display = "none";
         });
-        $('save' + board.boardid).click(() => {
+        $('#save' + board.boardid).click(() => {
             console.log("Save clicked!");
             boardname = document.getElementById("editName" + board.boardid).value;
             boarddesc = document.getElementById("editDesc" + board.boardid).value;
