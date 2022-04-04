@@ -68,11 +68,17 @@ $('#inviteButton').click(function (e) {
             groupID: data.group.groupid,
             reqTypeInvite
         },
+        statusCode:
+        {
+            201: function () {
+                alert("Success!");    
+            }
+        },
         success: (result) => {
             console.log("Invite Request was successfully Sent!");
             console.log(result);
         },
-        error: () => {
+        error: function () {
             console.log("Invite Request was unsuccessfully Sent");
         }
     });

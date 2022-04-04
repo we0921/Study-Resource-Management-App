@@ -276,9 +276,11 @@ router.get("/groupMenuPage", async (req, res) => {
     }
   });
 });
+
+
 // TODO - fix join group await
 //    Join a group and enter their page
-router.post("/groupMenuPage/:groupID", async (req, res) => {
+router.post("/groupMenuPage", async (req, res) => {
   // Parse the cookies
   const cookies = cookieParser(req);
 
@@ -307,7 +309,8 @@ router.post("/groupMenuPage/:groupID", async (req, res) => {
         res.clearCookie("session");
         res.status(401).redirect("/");
       } else {
-        let groupID = req.params["groupID"];
+        // let groupID = req.params["groupID"];
+        let groupID = req.body.groupID;
         console.log("Attempting to join: " + groupID);
         await joinGroup(cookies["email"], groupID, res);
       }
@@ -714,10 +717,11 @@ router.post("/groupInviteUser", async (req, res) => {
         if (cookies["email"] !== userEmail) {
           res.status(401);
         } else {
+          groupInviteUser(req, res, cookies["email"], req.body.inviteEmail, req.body.groupID);
           // What do these two lines do?
-          req.body.userEmail = userEmail;
-          req.body.inviteEmail = inviteEmail;
-          res.redirect("/groupPage/" + groupID);
+          // req.body.userEmail = userEmail;
+          // req.body.inviteEmail = inviteEmail;
+          // res.redirect("/groupPage/" + groupID);
         }
       }
     }
@@ -726,7 +730,7 @@ router.post("/groupInviteUser", async (req, res) => {
 
 // TODO - Figure out those two mystery lines
 //  get request handling for returning a notification for a group invite for a user
-router.get("/groupPage/:groupID", async (req, res) => {
+/*router.get("/groupPage/:groupID", async (req, res) => {
 // Parse the cookies
   const cookies = cookieParser(req);
 
@@ -767,7 +771,7 @@ router.get("/groupPage/:groupID", async (req, res) => {
       }
     }
   });
-});
+});*/
 
 // Add or remove a vote for a post
 router.post("/cubvotePost", async (req, res) => {
@@ -1977,22 +1981,25 @@ async function createGroup(leader, name, desc, isPrivate, tag, pic, res) {
               created = false;
             }
             else {
-              // insert group photo url into grouppics
-              const query = "INSERT INTO grouppicture (groupid, pic) VALUES ($1, $2)";
-              const values = [groupid, pic];
-              client.query(query, values, (err, response) => {
-                if (err) {
-                  printError("Error adding picture to group (005)");
-                  created = false;
-                } else {
+              if (pic !== "") {
+                // insert group photo url into grouppics
+                const query = "INSERT INTO grouppicture (groupid, pic) VALUES ($1, $2)";
+                const values = [groupid, pic];
+                client.query(query, values, (err, response) => {
+                  if (err) {
+                    printError("Error adding picture to group (005)");
+                    created = false;
+                  } else {
+                    created = true;
+                  }
                   if (!created) {
-                    // TODO await deleteGroup
+                    // TODO add await deleteGroup
                     res.status(503).redirect("/home");
                   } else {
                     res.status(200).redirect("/groupPage/" + groupid);
                   }
-                }
-              });
+                });
+              }
             }
           });
         }
@@ -2092,20 +2099,19 @@ function deleteBoard(groupID, boardID, email, res) {
 
 // [DONE] TODO - socketio stuff
 function groupInviteUser(req, res, userEmail, inviteEmail, groupID) {
-  let sId = req.session.email;
 
-  if (userEmail === sId) {
-    let status = false;
-    let inviteDate = new Date;
-
-    // Check if the sender is in the group they're trying to invite someone to
-    let query = "SELECT email "
-        + "FROM member_ "
-        + "WHERE groupid = $1 AND email = $2";
-    client.query(query, [groupID, userEmail], (err, response) => {
-      if (err) printError(err, "email: " + userEmail + ", groupID: " + groupID + " => could not query for email in members_ table with previous values");
-      else if (response.rows.length !== 0) {
-        // The user inviting the person IS in the group
+  // Check if the sender is in the group they're trying to invite someone to
+  let query = "SELECT email "
+      + "FROM member_ "
+      + "WHERE groupid = $1 AND email = $2";
+  client.query(query, [groupID, userEmail], (err, response) => {
+    if (err) {
+      printError(err, "email: " + userEmail + ", groupID: " + groupID + " => could not query for email in members_ table with previous values");
+      res.status(503);
+    }
+    else if (response.rows.length !== 0) {
+      // The user inviting the person IS in the group
+      let inviteDate = new Date();
 
       // Put the invitee in the member_ table
       let query = "INSERT INTO member_ VALUES($1, $2, $3, $4, $4, $5, $5)";
