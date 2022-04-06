@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -6,7 +7,65 @@
     <title>User Home Page</title>
     <!--Bootstrap & Icons-->
     <link type="text/css" rel="stylesheet" href="/css/bootstrap.min.css"  media="screen,projection"/>
+    <link type="text/css" rel="stylesheet" href="/css/groupMenu.css" media="screen,projection"/>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+    <style>
+        body {
+            background-color: #4158D0;
+            background-image: linear-gradient(43deg, #4158D0 0%, #C850C0 46%, #FFCC70 100%);
+        }
+        h1,h2 {
+            color: white;
+        }
+        .fc-view-container {
+            border-radius: 30px;
+            /*background-color: #8BC6EC;*/
+            /*background-image: linear-gradient(135deg, #8BC6EC 0%, #9599E2 100%);*/
+            background-color: #FBAB7E!important;
+            background-image: linear-gradient(62deg, #FBAB7E 0%, #F7CE68 100%)!important;
+        }
+        .card {
+            min-height: 15rem!important;
+        }
+        .card-img-top {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .card-row {
+            margin-bottom: 1rem;
+        }
+        .fc-button-primary {
+            background-color: #8BC6EC;
+            background-image: linear-gradient(180deg, #8BC6EC 0%, #9599E2 100%);
+            border-color: transparent!important;
+        }
+        td {
+            border-color: transparent!important;
+        }
+        .fc-today {
+            border-radius: 15px;
+            /*background-color: #FBAB7E!important;*/
+            /*background-image: linear-gradient(62deg, #FBAB7E 0%, #F7CE68 100%)!important;*/
+            background-color: #8BC6EC!important;
+            background-image: linear-gradient(270deg, #8BC6EC 0%, #9599E2 100%)!important;
+        }
+        .fc-event {
+            background-color: #8BC6EC!important;
+            background-image: linear-gradient(0deg, #8BC6EC 0%, #9599E2 100%)!important;
+            border: #9D66F7!important;
+        }
+        .btn-success {
+            background-color: #21D4FD!important;
+            background-image: linear-gradient(19deg, #21D4FD 0%, #B721FF 100%)!important;
+            border: transparent!important;
+        }
+        .btn-primary {
+            background-color: #21D4FD!important;
+            background-image: linear-gradient(330deg, #21D4FD 0%, #B721FF 100%)!important;
+            border: transparent!important;
+        }
+    </style>
 
     <!--  calendar stuff-->
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -20,127 +79,206 @@
     <!--  end of calendar stuff-->
 
 </head>
+<% randURL = function makeid(length) {
+    var result           = '';
+    var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+    var charactersLength = characters.length;
+    for ( var i = 0; i < length; i++ ) {
+        result += characters.charAt(Math.floor(Math.random() *
+                charactersLength));
+    }
+    return result;
+}%>
 <body>
 
 <%-include("partials/navAndSidebar")-%>
 
+
 <div class="row align-items-center">
-    <h1 class="text-center" id="nameBanner">Welcome, <%=obj.user.first%>!</h1>
+    <h1 class="display-4 text-center" id="nameBanner">Welcome, <%=obj.user.first%>!</h1>
 </div>
 
 <br>
 <br>
+
 
 <div class="container">
     <div class="row">
         <div class="col-6 groups">
-            <h2 class="text-center">Your Groups:</h2>
+            <h2 class="display-6 text-center" style="margin-bottom: 1rem">Your Groups:</h2>
             <% let counter = 0;%>
             <% let rowClosed; %>
             <% obj.groups.forEach((group) => { %>
-                <%# if we hit a 6th item, create a new row  %>
+                <% if (!(group.tagname == "Course" || group.tagname == "Extracurricular" || group.tagname == "Other")) return;%>
+                <%# if we hit a 3rd item, create a new row  %>
                 <% if (counter % 2 == 0) { %>
-                <div class="row justify-content-center">
-                    <% rowClosed = false; %>
-                    <% } %>
-                    <%# start of group card   %>
-                    <div class="col-sm">
-                        <div class="card mb-3" style="width: 15rem; height: 12rem">
-                            <div class="card-body">
-                                <h2 class="card-title"><%=group.groupname%></h2>
-                                <p class="card-text"><%=group.groupdesc%></p>
-
-                                <button type="button" onclick="location.href = '/groupPage/<%=group.groupid%>';" style = "width: 100%" name="button" class="btn btn-primary btn-block">Enter</button>
-
+            <div class="row card-row justify-content-center">
+                <% rowClosed = false; %>
+                <% } %>
+                <%# start of group card   %>
+                <% if (group.pic != null) {%>
+                <div class="col-md-6"><div onclick="enterGroup('<%=group.groupid%>')" class="card text-white card-has-bg click-col" style="background-image:url('<%=group.pic%>');">
+                        <%} else {%>
+                            <%let newUrl = "https://source.unsplash.com/600x900/?" + randURL(1);%>
+                        <div class="col-md-6"><div onclick="enterGroup('<%=group.groupid%>')" class="card text-white card-has-bg click-col" style="background-image:url('<%=newUrl%>');">
+                                <%}%>
+                                <img class="card-img d-none" src="" alt="Goverment Lorem Ipsum Sit Amet Consectetur dipisi?">
+                                <div class="card-img-overlay d-flex flex-column">
+                                    <div class="card-body" style="padding: 0rem 1rem;">
+                                        <small class="card-meta mb-2"><%=group.tagname%></small>
+                                        <h4 class="card-title mt-0 "><a class="text-white" herf="#"><%=group.groupname%></a></h4>
+                                        <small><i class="far fa-clock"></i><%=group.groupdesc%> </small>
+                                    </div>
+                                    <div class="card-footer">
+                                        <div class="media">
+                                            <div class="media-body">
+                                                <h6 class="my-0 text-white d-block"><%=group.first%> <%=group.last%></h6>
+                                                <small>Reputation Level: <%=group.cubvotes%></small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
+                        <%# end of group card %>
+                        <% if (counter % 2 == 1) {%>
+                            <% rowClosed = true; %>
                     </div>
-                    <% if (counter % 2 == 1) {%>
-                        <% rowClosed = true; %>
+                    <%}%>
+                    <% counter++; %>
+                    <%});%>
+                    <% if (!rowClosed) { %>
                 </div>
-                <%}%>
-                <% counter++; %>
-            <%});%>
-        </div>
-        <div class="col-6 calendar">
-            <div class="content" style="padding: 0!important">
-                <div id='calendar'></div>
+                <% }%>
+            </div>
+            <div class="col-6 calendar">
+                <div class="row">
+                    <div class="content" style="padding: 0!important">
+                        <div id='calendar'></div>
+                    </div>
+
+                    <!--      <script src="js/jquery-3.3.1.min.js"></script>-->
+                    <script src="/js/popper.min.js"></script>
+                    <!--      <script src="js/bootstrap.min.js"></script>-->
+
+                    <script src='/fullcalendar/packages/core/main.js'></script>
+                    <script src='/fullcalendar/packages/interaction/main.js'></script>
+                    <script src='/fullcalendar/packages/daygrid/main.js'></script>
+                    <div id="sObj" style="display:none"><%=sObj%></div>
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function() {
+                            var calendarEl = document.getElementById('calendar');
+                            var obj = JSON.parse(document.getElementById("sObj").innerHTML);
+                            console.log(document.getElementById("sObj").innerHTML);
+                            var eventList = [];
+                            // create the event list for the calendar
+                            obj.events.forEach((event) => {
+                                let start = new Date(Number(event.startunix)).toISOString();
+                                let end = new Date(Number (event.endunix)).toISOString();
+
+                                eventList.push({
+                                    title: event.eventname,
+                                    start: start,
+                                    end: end
+                                });
+                            });
+                            var curr = new Date();
+                            var formatted = curr.toISOString();
+                            console.log(eventList);
+                            var calendar = new FullCalendar.Calendar(calendarEl, {
+                                plugins: [ 'interaction', 'dayGrid' ],
+                                defaultDate: formatted,
+                                editable: true,
+                                eventLimit: false, // allow "more" link when too many events
+                                events: eventList
+                            });
+                            calendar.render();
+                        });
+                    </script>
+                </div>
+
+                <div class="row justify-content-center" style="margin-top: 3rem;">
+                    <div class="col-4">
+                        <button type="submit" name="createGrpBtn" value="logging" class="btn btn-lg btn-success" data-bs-toggle="modal" data-bs-target="#createModal">Create a Group</button>
+                    </div>
+                    <div class="col-4">
+                        <a href="/groupMenuPage"><button type="submit" name="joinGrpBtn" value="logging" class="btn btn-lg btn-primary">Join a Group</button></a>
+                    </div>
+                </div>
             </div>
 
-            <!--      <script src="js/jquery-3.3.1.min.js"></script>-->
-            <script src="/js/popper.min.js"></script>
-            <!--      <script src="js/bootstrap.min.js"></script>-->
-
-            <script src='/fullcalendar/packages/core/main.js'></script>
-            <script src='/fullcalendar/packages/interaction/main.js'></script>
-            <script src='/fullcalendar/packages/daygrid/main.js'></script>
-            <div id="sObj" style="display:none"><%=sObj%></div>
-            <script>
-
-
-
-                document.addEventListener('DOMContentLoaded', function() {
-                    var calendarEl = document.getElementById('calendar');
-                    var obj = JSON.parse(document.getElementById("sObj").innerHTML);
-                    console.log(document.getElementById("sObj").innerHTML);
-
-                    var eventList = [];
-
-                    // create the event list for the calendar
-                    obj.events.forEach((event) => {
-                        eventList.push({
-                            title: event.eventname,
-                            start: event.startunix,
-                            end: event.endunix
-                        });
-                    });
-
-                    var curr = new Date();
-                    var formatted = curr.toISOString();
-                    console.log(eventList);
-
-                    var calendar = new FullCalendar.Calendar(calendarEl, {
-                        plugins: [ 'interaction', 'dayGrid' ],
-                        defaultDate: formatted,
-                        editable: true,
-                        eventLimit: false, // allow "more" link when too many events
-                        events: eventList
-                    });
-
-                    calendar.render();
-                });
-
-            </script>
         </div>
-    </div>
+        <!-- Create Group Modal -->
+        <div class="modal fade" id="createModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Create Group</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id ="postReq" action = "/createGroup" method = "post">
+                            <div class="form-group">
+                                <label for="exampleInputEmail1">Group Name</label>
+                                <input type= "text" name = "groupName" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter Group name">
+                            </div>
+                            <div class="form-group">
+                                <label for="exampleInputPassword1">Group Description</label>
+                                <input type="text" name = "groupDesc" class="form-control" id="exampleInputPassword1" placeholder="Enter Group Desc">
+                            </div>
+                            <div class="form-group">
+                                <label for="exampleInputPassword1">Privacy</label>
+                                <div class="btn-group" role="group" aria-label="Basic radio toggle button group">
+                                    <input type="radio" class="btn-check" name="btnradio" id="btnradio1" autocomplete="off" checked value="false">
+                                    <label class="btn btn-outline-info" for="btnradio1">Public</label>
 
-
-    <div class="row justify-content-left">
-        <div class="col-3">
-            <a href="/createGroup"><button type="submit" name="createGrpBtn" value="logging" class="btn btn-primary">Create a Group</button></a>
-            <a href="/groupMenuPage"><button type="submit" name="joinGrpBtn" value="logging" class="btn btn-primary">Join a Group</button></a>
+                                    <input type="radio" class="btn-check" name="btnradio" id="btnradio2" autocomplete="off" value="true">
+                                    <label class="btn btn-outline-dark" for="btnradio2">Private</label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="exampleInputPassword1">Group Main Tag</label>
+                                <select class="form-control" name="tag">
+                                    <option value="Course">Course</option>
+                                    <option value="Extracurricular">Extracurricular</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="exampleInputPassword1">Group Picture (URL)</label>
+                                <input type="text" name = "grouppic" class="form-control" id="pic" placeholder="Enter Board Desc">
+                            </div>
+                            <button type="submit" class="btn btn-primary">Submit</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
         </div>
+
+
+
     </div>
-</div>
+    <form id="enterGroup" action="/groupPage" method="post">
+        <input id="groupID" type="text" name="groupid" style="display:none" value="">
+        <input type="text" name="reqType" style="display:none" value="groupMenuPage">
+    </form>
 
-<div id="user" style="display:none"><%=email%></div>
-<script type="text/javascript" src="/js/jquery-3.6.0.min.js"></script>
-<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.min.js"></script>
-<script src= "/socket.io/socket.io.js"></script>
-<script>
-    var socket = io.connect();
-
-    window.onload = () => {
-        let user  = document.getElementById("user").innerHTML;
-        console.log("this is user: " + user);
-        console.log(typeof user);
-        socket.on('connection', function() {
-            // Connected, let's sign-up for to receive messages for this room
-            socket.emit('user', user);
+    <div id="user" style="display:none"><%=email%></div>
+    <script type="text/javascript" src="/js/jquery-3.6.0.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.min.js"></script>
+    <script src= "/socket.io/socket.io.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            document.getElementsByClassName("fc-left")[0].getElementsByTagName("h2")[0].classList.add("display-6");
         });
-    }
+        function enterGroup(group){
+            console.log(group);
+            document.getElementById("groupID").value = group;
+            // document.getElementById("enterGroup").submit();
+            window.location.replace("/groupPage/" + group)
 
-</script>
+        }
+    </script>
 
 </body>
 </html>

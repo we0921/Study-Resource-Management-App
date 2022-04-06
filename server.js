@@ -128,8 +128,17 @@ router.get("/home", async (req, res) => {
             user = response.rows[0];
 
             // getting the groups they are a part of
-            query = "WITH groupsInvited AS (SELECT * FROM member_ WHERE email = $1 and status = true) " +
-                "SELECT * FROM group_ JOIN groupsInvited ON group_.groupid = groupsInvited.groupid WHERE group_.deleted = false";
+            query =
+                "WITH groupsInvited AS (" +
+                "SELECT * FROM member_ WHERE email = $1 AND status = true), " +
+                "leaderInfo AS ( " +
+                "SELECT leader, first, last, count(*) as cubvotes " +
+                "FROM group_ NATURAL JOIN groupsInvited JOIN users on group_.leader = users.email JOIN post ON post.postowner = group_.leader JOIN cubvoted ON post.postid = cubvoted.postid GROUP BY post.postowner, group_.leader, users.first, users.last), " +
+                "picsAndMore AS ( " +
+                "SELECT * " +
+                "FROM group_ LEFT JOIN grouppictures USING (groupid) JOIN groupsInvited ON group_.groupid = groupsInvited.groupid " +
+                "WHERE group_.deleted = false) " +
+                "SELECT * FROM leaderInfo NATURAL JOIN picsAndMore";
             client.query(query, values, (err, response) => {
               if (err) printError(err, "2");
               else {
@@ -147,6 +156,10 @@ router.get("/home", async (req, res) => {
                       groups: groups,
                       events: events
                     }
+                    console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+                    console.log(obj.events);
+                    console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+
                     res.render("homepage", {sObj: JSON.stringify(obj), obj: obj, email: cookies["email"]});
                   }
                 });
@@ -236,11 +249,18 @@ router.get("/groupMenuPage", async (req, res) => {
         res.clearCookie("session");
         res.status(401).redirect("/");
       } else {
-        const query = "SELECT group_.groupid, group_.groupname, group_.groupdesc, group_.tagname as categorytag, users.first, users.last "
-            + "FROM group_ JOIN users ON group_.leader = users.email "
-            + "WHERE private = false; ";
+        const query =
+           " WITH groupList AS ( (SELECT groupid, groupname, groupdesc  FROM group_) EXCEPT " +
+            "(SELECT groupid, groupname, groupdesc FROM member_ NATURAL JOIN group_ WHERE email = $1 AND status = true OR deleted = true)), " +
+            "leaderInfo AS ( " +
+            "SELECT leader, first, last, count(*) as cubvotes " +
+            "FROM group_ NATURAL JOIN groupList JOIN users on group_.leader = users.email JOIN post ON post.postowner = group_.leader JOIN cubvoted ON post.postid = cubvoted.postid GROUP BY post.postowner, group_.leader, users.first, users.last), " +
+            "picsAndMore AS ( " +
+            "SELECT * " +
+            "FROM groupList LEFT JOIN grouppictures USING (groupid) ) " +
+            "SELECT * FROM leaderInfo NATURAL JOIN picsAndMore";
 
-        client.query(query, [], (err, response) => {
+        client.query(query, [cookies["email"]], (err, response) => {
           if (err){
             printError(err, "Error retrieving group info (001)");
             res.status(503).send("Error retrieving group info (001)");
@@ -901,7 +921,7 @@ router.post("/eventInviteUser", async (req, res) => {
         res.status(401).redirect("/");
       } else {
         const query = "INSERT INTO attend (email, eventid, attending) VALUES($1, $2, $3);"
-        client.query(query, [cookies["email"], req.body.eventID, false], (err, response) => {
+        client.query(query, [req.body.userEmail, req.body.eventID, false], (err, response) => {
           if (err) printError(err, "Error inviting user to event");
           else res.redirect("/eventHomePage/" + req.body.eventID);
         });
@@ -941,7 +961,7 @@ router.post("/createEvent", async (req, res) => {
         res.clearCookie("session");
         res.status(401).redirect("/");
       } else {
-        createEvent(cookies["email"], req.body.eventName, req.body.eventDesc, req.body.datetimes, req.body.groupID, res);
+        createEvent(cookies["email"], req.body.eventName, req.body.eventDesc, req.body.datetimes, req.body.groupID, res, req);
       }
     }
   });
@@ -1007,7 +1027,7 @@ router.get("/eventHomePage/:eventID", async (req, res) => {
                 // get the attendees
                 // get the event info and the list of attendees, both accepted and non accepted
                 const query = "WITH attendees AS ("
-                    + "SELECT email FROM attend WHERE eventid = $1), "
+                    + "SELECT email FROM attend WHERE eventid = $1 AND attending = true), "
                     + "scores AS ("
                     + "SELECT postowner as email, COUNT(*) AS cubvotes "
                     + "FROM cubvoted natural join post "
@@ -2333,7 +2353,7 @@ function groupInviteUser(req, res, userEmail, inviteEmail, groupID) {
 }
 
 // [DONE]
-function createEvent(email, eventName, eventDesc, time, groupID, res) {
+function createEvent(email, eventName, eventDesc, time, groupID, res, req) {
   console.log(groupID);
 
   // Ensure the user is a member of the group in which the event is being created
@@ -2360,21 +2380,29 @@ function createEvent(email, eventName, eventDesc, time, groupID, res) {
       client.query(query, values, (err, response) => {
         if (err) printError(err, "Error creating event");
         else {
-          let event = {enddate: endDate,
-            endtime: endTime,
-            endunix: endUnix,
-            eventdesc: eventDesc,
-            eventid: eId,
-            eventname: eventName,
-            groupid: groupID,
-            host: email,
-            startdate: startDate,
-            starttime: startTime,
-            startunix: startUnix}
-          console.log("Emitting event to: " + groupID);
-          io.to(groupID).emit("newEvent", event);
-          console.log("After event emit");
-          res.status(200).json(event);
+          const query = "INSERT INTO attend (email, eventid, attending) VALUES($1, $2, $3);"
+          client.query(query, [email, eId, true], (err, response) => {
+            if (err) printError(err, "could not insert creator of event into attending table");
+            else {
+              let event = {
+                enddate: endDate,
+                endtime: endTime,
+                endunix: endUnix,
+                eventdesc: eventDesc,
+                eventid: eId,
+                eventname: eventName,
+                groupid: groupID,
+                host: email,
+                startdate: startDate,
+                starttime: startTime,
+                startunix: startUnix
+              }
+              console.log("Emitting event to: " + groupID);
+              io.to(groupID).emit("newEvent", event);
+              console.log("After event emit");
+              res.status(200).json(event);
+            }
+          });
         }
       });
     } else {
@@ -2437,7 +2465,7 @@ function showInvites(email, res) {
         if (err) printError(err, "Error retrieving event invitations");
         else {
           events = response.rows;
-
+          console.log(events);
           // getting the groups they have been invited to // can change
           const query = "WITH groupsInvited AS (SELECT * FROM member_ WHERE email = $1 and status = false) "
               + "SELECT * FROM group_ natural join groupsInvited"
@@ -2447,7 +2475,7 @@ function showInvites(email, res) {
               groups = response.rows;
               const obj = {
                 user: user,
-                event: events,
+                events: events,
                 groups: groups
               }
               console.log(obj);

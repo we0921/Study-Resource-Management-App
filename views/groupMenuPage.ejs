@@ -13,6 +13,19 @@
       height: 100%;
       object-fit: cover;
     }
+    h1, h2, h3 {
+      color: white!important;
+    }
+    body {
+      background-color: #FFE53B;
+      background-image: linear-gradient(204deg, #FFE53B 0%, #FF2525 74%);
+
+    }
+    .btn-success {
+      background-color: #21D4FD!important;
+      background-image: linear-gradient(19deg, #21D4FD 0%, #B721FF 100%)!important;
+      border: transparent!important;
+    }
   </style>
 </head>
 <% randURL = function makeid(length) {
@@ -26,242 +39,232 @@
   return result;
 }%>
 
+<body>
+<%-include("partials/navAndSidebar")-%>
+<h1 class="display-5 text-center">All Groups</h1>
+<button style="position: fixed; bottom: 10%; right: 5%; z-index:100" data-bs-toggle="modal" data-bs-target="#createModal" class="btn btn-lg btn-success">Create a Group</button>
 
-  <body>
-  <%-include("partials/navAndSidebar")-%>
-    <h1 class="display-5 text-center">All Groups</h1>
-    <button style="position: fixed; bottom: 10%; right: 5%; z-index:100" data-bs-toggle="modal" data-bs-target="#createModal" class="btn btn-lg btn-success">Create a Group</button>
+<!-- Create Group Modal -->
+<div class="modal fade" id="createModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Create Group</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id ="postReq" action = "/createGroup" method = "post">
+          <div class="form-group">
+            <label for="exampleInputEmail1">Group Name</label>
+            <input type= "text" name = "groupName" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter Group name">
+          </div>
+          <div class="form-group">
+            <label for="exampleInputPassword1">Group Description</label>
+            <input type="text" name = "groupDesc" class="form-control" id="exampleInputPassword1" placeholder="Enter Group Desc">
+          </div>
+          <div class="form-group">
+            <label for="exampleInputPassword1">Privacy</label>
+            <div class="btn-group" role="group" aria-label="Basic radio toggle button group">
+              <input type="radio" class="btn-check" name="btnradio" id="btnradio1" autocomplete="off" checked value="false">
+              <label class="btn btn-outline-info" for="btnradio1">Public</label>
 
-  <!-- Create Group Modal -->
-  <div class="modal fade" id="createModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLabel">Create Group</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <form id ="postReq" action = "/createGroup" method = "post">
-            <div class="form-group">
-              <label for="exampleInputEmail1">Group Name</label>
-              <input type= "text" name = "groupName" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter Group name">
+              <input type="radio" class="btn-check" name="btnradio" id="btnradio2" autocomplete="off" value="true">
+              <label class="btn btn-outline-dark" for="btnradio2">Private</label>
             </div>
-            <div class="form-group">
-              <label for="exampleInputPassword1">Group Description</label>
-              <input type="text" name = "groupDesc" class="form-control" id="exampleInputPassword1" placeholder="Enter Group Desc">
-            </div>
-            <div class="form-group">
-              <label for="exampleInputPassword1">Privacy</label>
-              <div class="btn-group" role="group" aria-label="Basic radio toggle button group">
-                <input type="radio" class="btn-check" name="btnradio" id="btnradio1" autocomplete="off" checked value="false">
-                <label class="btn btn-outline-info" for="btnradio1">Public</label>
-
-                <input type="radio" class="btn-check" name="btnradio" id="btnradio2" autocomplete="off" value="true">
-                <label class="btn btn-outline-dark" for="btnradio2">Private</label>
-              </div>
-            </div>
-            <div class="form-group">
-              <label for="exampleInputPassword1">Group Main Tag</label>
-              <select class="form-control" name="tag">
-                <option value="Course">Course</option>
-                <option value="Extracurricular">Extracurricular</option>
-                <option value="Other">Other</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label for="exampleInputPassword1">Group Picture (URL)</label>
-              <input type="text" name = "grouppic" class="form-control" id="pic" placeholder="Enter Board Desc">
-            </div>
-            <button type="submit" class="btn btn-primary">Submit</button>
-          </form>
-        </div>
+          </div>
+          <div class="form-group">
+            <label for="exampleInputPassword1">Group Main Tag</label>
+            <select class="form-control" name="tag">
+              <option value="Course">Course</option>
+              <option value="Extracurricular">Extracurricular</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="exampleInputPassword1">Group Picture (URL)</label>
+            <input type="text" name = "grouppic" class="form-control" id="pic" placeholder="Enter Board Desc">
+          </div>
+          <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
       </div>
     </div>
   </div>
+</div>
 
-    <h2 class="display-1 text-center">Courses</h2>
-    <div class="container-fluid">
-      <% let counter = 0;%>
-      <% let rowClosed; %>
-      <% groups.forEach((group) => { %>
-        <% if (group.categorytag != "Course") return;%>
-        <%# if we hit a 4th? item, create a new row  %>
-        <% if (counter % 4 == 0) { %>
-        <section class="wrapper">
-          <div class="container">
-            <div class="row">
+<h2 class="display-1 text-center">Courses</h2>
+<div class="container-fluid">
+  <% let counter = 0;%>
+  <% let rowClosed; %>
+  <% groups.forEach((group) => { %>
+    <% if (group.tags[0] != "Course") return;%>
+    <%# if we hit a 4th? item, create a new row  %>
+    <% if (counter % 3 == 0) { %>
+    <section class="wrapper">
+      <div class="container">
+        <div class="row justify-content-center">
           <% rowClosed = false; %>
           <% } %>
 
-              <% if (group.pic != null) {%>
-              <div class="col-md-4"><div onclick="enterGroup('<%=group.groupid%>')" class="card text-white card-has-bg click-col" style="background-image:url('<%=group.pic%>');">
+          <% if (group.pic != null) {%>
+          <div class="col-md-4"><div onclick="enterGroup('<%=group.groupid%>')" class="card text-white card-has-bg click-col" style="background-image:url('<%=group.pic%>');">
               <%} else {%>
-                <%let newUrl = "https://source.unsplash.com/600x900/?" + randURL(2);%>
+                <%let newUrl = "https://source.unsplash.com/600x900/?" + randURL(1);%>
               <div class="col-md-4"><div onclick="enterGroup('<%=group.groupid%>')" class="card text-white card-has-bg click-col" style="background-image:url('<%=newUrl%>');">
-              <%}%>
+                  <%}%>
                   <img class="card-img d-none" src="" alt="Goverment Lorem Ipsum Sit Amet Consectetur dipisi?">
                   <div class="card-img-overlay d-flex flex-column">
                     <div class="card-body">
-                      <small class="card-meta mb-2"><%=group.tags%></small>
+                      <small class="card-meta mb-2"><%=group.tags[0]%></small>
                       <h4 class="card-title mt-0 "><a class="text-white" herf="#"><%=group.groupname%></a></h4>
                       <small><i class="far fa-clock"></i><%=group.groupdesc%> </small>
                     </div>
                     <div class="card-footer">
                       <div class="media">
-                        <img class="mr-3 rounded-circle" src="https://cdn0.iconfinder.com/data/icons/user-pictures/100/male-512.png" alt="Generic placeholder image" style="max-width:50px">
                         <div class="media-body">
                           <h6 class="my-0 text-white d-block"><%=group.first%> <%=group.last%></h6>
+                          <small>Reputation Level: <%=group.cubvotes%></small>
                         </div>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
-          <% if (counter % 3 == 2) {%>
-            <% rowClosed = true %>
+              <% if (counter % 3 == 2) {%>
+                <% rowClosed = true %>
             </div>
           </div>
-        </section>
-          <%}%>
-          <% counter++; %>
-      <%});%>
-    </div>
+    </section>
+    <%}%>
+    <% counter++; %>
+  <%});%>
+  <% if (!rowClosed) { %>
+</div>
+</div>
+</section>
+<% }%>
+</div>
 
-  <h2 class="text-center display-1">Extracurriculars</h2>
-  <div class="container-fluid">
-    <% counter = 0;%>
-    <% rowClosed = false; %>
-    <% groups.forEach((group) => { %>
-      <% if (group.categorytag != "Extracurricular") return;%>
-      <%# if we hit a 4th? item, create a new row  %>
-      <% if (counter % 4 == 0) { %>
-      <section class="wrapper">
-        <div class="container">
-          <div class="row">
-            <% rowClosed = false; %>
-            <% } %>
+<h2 class="text-center display-1">Extracurriculars</h2>
+<div class="container-fluid">
+  <% counter = 0;%>
+  <% rowClosed = false; %>
+  <% groups.forEach((group) => { %>
+    <% if (group.tags[0]!= "Extracurricular") return;%>
+    <%# if we hit a 4th? item, create a new row  %>
+    <% if (counter % 3 == 0) { %>
+    <section class="wrapper">
+      <div class="container">
+        <div class="row justify-content-center">
+          <% rowClosed = false; %>
+          <% } %>
 
-            <% if (group.pic != null) {%>
-            <div class="col-md-4"><div onclick="enterGroup('<%=group.groupid%>')" class="card text-white card-has-bg click-col" style="background-image:url('<%=group.pic%>');">
-                <%} else {%>
-                  <%let newUrl = "https://source.unsplash.com/600x900/?" + randURL(2);%>
-                <div class="col-md-4"><div onclick="enterGroup('<%=group.groupid%>')" class="card text-white card-has-bg click-col" style="background-image:url('<%=newUrl%>');">
-                    <%}%>
-                    <img class="card-img d-none" src="" alt="Goverment Lorem Ipsum Sit Amet Consectetur dipisi?">
-                    <div class="card-img-overlay d-flex flex-column">
-                      <div class="card-body">
-                        <small class="card-meta mb-2"><%=group.categorytag%></small>
-                        <h4 class="card-title mt-0 "><a class="text-white" herf="#"><%=group.groupname%></a></h4>
-                        <small><i class="far fa-clock"></i><%=group.groupdesc%> </small>
-                      </div>
-                      <div class="card-footer">
-                        <div class="media">
-                          <img class="mr-3 rounded-circle" src="https://cdn0.iconfinder.com/data/icons/user-pictures/100/male-512.png" alt="Generic placeholder image" style="max-width:50px">
-                          <div class="media-body">
-                            <h6 class="my-0 text-white d-block"><%=group.first%> <%=group.last%></h6>
-                          </div>
+          <% if (group.pic != null) {%>
+          <div class="col-md-4"><div onclick="enterGroup('<%=group.groupid%>')" class="card text-white card-has-bg click-col" style="background-image:url('<%=group.pic%>');">
+              <%} else {%>
+                <%let newUrl = "https://source.unsplash.com/600x900/?" + randURL(1);%>
+              <div class="col-md-4"><div onclick="enterGroup('<%=group.groupid%>')" class="card text-white card-has-bg click-col" style="background-image:url('<%=newUrl%>');">
+                  <%}%>
+                  <img class="card-img d-none" src="" alt="Goverment Lorem Ipsum Sit Amet Consectetur dipisi?">
+                  <div class="card-img-overlay d-flex flex-column">
+                    <div class="card-body">
+                      <small class="card-meta mb-2"><%=group.tags[0]%></small>
+                      <h4 class="card-title mt-0 "><a class="text-white" herf="#"><%=group.groupname%></a></h4>
+                      <small><i class="far fa-clock"></i><%=group.groupdesc%> </small>
+                    </div>
+                    <div class="card-footer">
+                      <div class="media">
+                        <div class="media-body">
+                          <h6 class="my-0 text-white d-block"><%=group.first%> <%=group.last%></h6>
+                          <small>Reputation Level: <%=group.cubvotes%></small>
                         </div>
                       </div>
                     </div>
                   </div>
                 </div>
-                <% if (counter % 3 == 2) {%>
-                  <% rowClosed = true %>
               </div>
+              <% if (counter % 3 == 2) {%>
+                <% rowClosed = true %>
             </div>
-      </section>
-      <%}%>
-      <% counter++; %>
-    <%});%>
-  </div>
+          </div>
+    </section>
+    <%}%>
+    <% counter++; %>
+  <%});%>
+  <% if (!rowClosed) { %>
+</div>
+</div>
+</section>
+<% }%>
+</div>
 
-  <h2 class="text-center display-1">Other</h2>
-  <div class="container-fluid">
-    <% counter = 0;%>
-    <% rowClosed = false; %>
-    <% groups.forEach((group) => { %>
-      <% if (group.categorytag != "Other") return;%>
-      <%# if we hit a 4th? item, create a new row  %>
-      <% if (counter % 4 == 0) { %>
-      <section class="wrapper">
-        <div class="container">
-          <div class="row">
-            <% rowClosed = false; %>
-            <% } %>
+<h2 class="text-center display-1">Other</h2>
+<div class="container-fluid">
+  <% counter = 0;%>
+  <% rowClosed = false; %>
+  <% groups.forEach((group) => { %>
+    <% if (group.tags[0]!= "Other") return;%>
+    <%# if we hit a 4th? item, create a new row  %>
+    <% if (counter % 4 == 0) { %>
+    <section class="wrapper">
+      <div class="container">
+        <div class="row justify-content-center">
+          <% rowClosed = false; %>
+          <% } %>
 
-            <% if (group.pic != null) {%>
-            <div class="col-md-4">
-              <div onclick="enterGroup('<%=group.groupid%>')" class="card text-white card-has-bg click-col" style="background-image:url('<%=group.pic%>');">
-                <%} else {%>
-                  <%let newUrl = "https://source.unsplash.com/600x900/?" + randURL(2);%>
-                <div class="col-md-4">
-                  <div onclick="enterGroup('<%=group.groupid%>')" class="card text-white card-has-bg click-col" style="background-image:url('<%=newUrl%>');">
-                    <%}%>
-                    <img class="card-img d-none" src="">
-                    <div class="card-img-overlay d-flex flex-column">
-                      <div class="card-body">
-                        <small class="card-meta mb-2"><%=group.categorytag%></small>
-                        <h4 class="card-title mt-0 "><a class="text-white" herf="#"><%=group.groupname%></a></h4>
-                        <small><i class="far fa-clock"></i><%=group.groupdesc%> </small>
-                      </div>
-                      <div class="card-footer">
-                        <div class="media">
-                          <img class="mr-3 rounded-circle" src="https://cdn0.iconfinder.com/data/icons/user-pictures/100/male-512.png" alt="Generic placeholder image" style="max-width:50px">
-                          <div class="media-body">
-                            <h6 class="my-0 text-white d-block"><%=group.first%> <%=group.last%></h6>
-                          </div>
+          <% if (group.pic != null) {%>
+          <div class="col-md-4">
+            <div onclick="enterGroup('<%=group.groupid%>')" class="card text-white card-has-bg click-col" style="background-image:url('<%=group.pic%>');">
+              <%} else {%>
+                <%let newUrl = "https://source.unsplash.com/600x900/?" + randURL(1);%>
+              <div class="col-md-4">
+                <div onclick="enterGroup('<%=group.groupid%>')" class="card text-white card-has-bg click-col" style="background-image:url('<%=newUrl%>');">
+                  <%}%>
+                  <img class="card-img d-none" src="" alt="Goverment Lorem Ipsum Sit Amet Consectetur dipisi?">
+                  <div class="card-img-overlay d-flex flex-column">
+                    <div class="card-body">
+                      <small class="card-meta mb-2"><%=group.tags[0]%></small>
+                      <h4 class="card-title mt-0 "><a class="text-white" herf="#"><%=group.groupname%></a></h4>
+                      <small><i class="far fa-clock"></i><%=group.groupdesc%> </small>
+                    </div>
+                    <div class="card-footer">
+                      <div class="media">
+                        <div class="media-body">
+                          <h6 class="my-0 text-white d-block"><%=group.first%> <%=group.last%></h6>
+                          <small>Reputation Level: <%=group.cubvotes%></small>
                         </div>
                       </div>
                     </div>
                   </div>
                 </div>
-                <% if (counter % 3 == 2) {%>
-                  <% rowClosed = true %>
               </div>
+              <% if (counter % 3 == 2) {%>
+                <% rowClosed = true %>
             </div>
-      </section>
-      <%}%>
-      <% counter++; %>
-    <%});%>
-  </div>
+          </div>
+    </section>
+    <%}%>
+    <% counter++; %>
+  <%});%>
+  <% if (!rowClosed) { %>
+</div>
+</div>
+</section>
+<% }%>
+</div>
 
-  <form id="enterGroup" action="/groupMenuPage" method="post">
-    <input id="groupID" type="text" name="group_id" style="display:none" value="">
-    <input type="text" name="reqType" style="display:none" value="groupMenuPage">
-  </form>
-  <div id = "data" style = "display: none"><%=data%></div>
-  <script>
-    window.onload = () => {
-      let data = document.getElementById("data");
-      console.log(data.innerText);
-      console.log(JSON.parse(data.innerText));
-    }
+<form id="enterGroup" action="/groupMenuPage" method="post">
+  <input id="groupID" type="text" name="groupid" style="display:none" value="">
+  <input type="text" name="reqType" style="display:none" value="groupMenuPage">
+</form>
 
-
-    function enterGroup(group){
-      console.log(group);
-      // console.log(url);
-
-      // document.getElementById("groupID").value = group;
-      // document.getElementById("enterGroup").submit();
-
-      $.ajax({
-        method: "post",
-        URL: "/groupMenuPage/",
-        data: {
-          groupID: group
-        },
-        success: () => {
-          alert("Group created!")
-          window.location.href = "/home";
-        },
-        error: () => {
-          alert("Error creating group");
-        }
-      });
-    }
-  </script>
-  <script type="text/javascript" src="/js/jquery-3.6.0.min.js"></script>
-  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.min.js"></script>
-  </body>
+<script>
+  function enterGroup(group){
+    console.log(group);
+    document.getElementById("groupID").value = group;
+    document.getElementById("enterGroup").submit();
+  }
+</script>
+<script type="text/javascript" src="/js/jquery-3.6.0.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.min.js"></script>
+</body>
 </html>
