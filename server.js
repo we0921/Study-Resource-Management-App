@@ -289,6 +289,7 @@ router.get("/groupMenuPage", async (req, res) => {
                   group.tags = grouptags[group.groupid];
                 });
 
+                console.log(groupInfo);
                 res.render("groupMenuPage", {groups: groupInfo, data: JSON.stringify(groupInfo)});
               }
             });
