@@ -7,18 +7,45 @@
     <link type="text/css" rel="stylesheet" href="/css/bootstrap.min.css"  media="screen,projection"/>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
 </head>
+
+<style>
+    body {
+        background-image: linear-gradient(to top, #30cfd0 0%, #330867 100%)!important;
+    }
+
+    #groupCard {
+        border-radius: 15px;
+        background-image: linear-gradient(to right, #eea2a2 0%, #bbc1bf 19%, #57c6e1 42%, #b49fda 79%, #7ac5d8 100%)!important;
+    }
+    div, h5, span {
+        color: white;
+    }
+    .list-group-item {
+        border-radius: 15px!important;
+        background-image: linear-gradient(to right, #eea2a2 0%, #bbc1bf 19%, #57c6e1 42%, #b49fda 79%, #7ac5d8 100%)!important;
+    }
+
+    .btn-success {
+        border-radius: 15px!important;
+        background-image: linear-gradient(to right, #eea2a2 0%, #bbc1bf 19%, #57c6e1 42%, #b49fda 79%, #7ac5d8 100%)!important;
+        border: transparent!important;
+    }
+</style>
 <body>
 
+<button style="position: fixed; bottom: 10%; right: 5%; z-index:100" data-bs-toggle="modal" data-bs-target="#messageModal" class="btn btn-lg btn-success">Send a Message</button>
+
 <%-include("partials/navAndSidebar")-%>
-    <h1 id = "titleheader" style="text-align: center; margin-top: 20px;"></h1>
-    <h6 id = "descheader" style="text-align: center"></h6>
+
+    <h1 id = "titleheader" class="display-5" style="text-align: center; margin-top: 20px; color: white;"></h1>
+    <h6 id = "descheader" class="display-6" style="text-align: center; color: white;"></h6>
     <div id="siteContainer" class="row" style="padding-top: 50px">
         <!-- Spacer to the left-->
         <div id="leftSpacer" class="col-sm-0 col-md-1 col-lg-1"> </div>
         <!--Container for Boards-->
         <div id="boardContainer" class="col-sm-12 col-md-10 col-lg-10">
             <div id="groupCard" class="card">
-                <div id="groupName" class="card-header">
+                <div id="groupName" class="card-header display-6" style="color: white;">
                     Board Name
                 </div>
                 <div id="postList" class="card-body">

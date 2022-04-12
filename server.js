@@ -763,6 +763,7 @@ router.post("/deleteBoard", async (req, res) => {
 // TODO - Doesn't make sense? Is this a user accepting a group invite? Figure out those two mystery lines
 //post request handling for giving a user a group invite
 router.post("/groupInviteUser", async (req, res) => {
+  console.log("ENTERING GROUPINVITEUSER post")
   // Parse the cookies
   const cookies = cookieParser(req);
 
@@ -1035,6 +1036,8 @@ router.get("/eventHomePage/:eventID", async (req, res) => {
                     + "GROUP BY postowner)"
                     + "SELECT first, last, bio, cubvotes "
                     + "FROM users natural join attendees natural join scores";
+
+
                 client.query(query, [req.params["eventID"]], (err, response) => {
                   if (err) printError(err, "Error retrieving attendees")
                   else {
@@ -2461,19 +2464,31 @@ function showInvites(email, res) {
 
       // getting the events they've been invited to // can change
       const query = "WITH eventsInvited AS (SELECT * FROM attend WHERE email = $1 and attending = false) " +
-          "SELECT * FROM event natural join eventsInvited";
+          "SELECT * FROM event natural join eventsInvited natural join users";
       client.query(query, [email], (err, response) => {
         if (err) printError(err, "Error retrieving event invitations");
         else {
           events = response.rows;
           console.log(events);
           // getting the groups they have been invited to // can change
-          const query = "WITH groupsInvited AS (SELECT * FROM member_ WHERE email = $1 and status = false) "
-              + "SELECT * FROM group_ natural join groupsInvited"
+          const query =
+              "WITH groupsInvited AS (" +
+              "SELECT * FROM member_ WHERE email = $1 AND status = false), " +
+              "leaderInfo AS ( " +
+              "SELECT leader, first, last, count(*) as cubvotes " +
+              "FROM group_ NATURAL JOIN groupsInvited JOIN users on group_.leader = users.email JOIN post ON post.postowner = group_.leader JOIN cubvoted ON post.postid = cubvoted.postid GROUP BY post.postowner, group_.leader, users.first, users.last), " +
+              "picsAndMore AS ( " +
+              "SELECT * " +
+              "FROM group_ LEFT JOIN grouppictures USING (groupid) JOIN groupsInvited ON group_.groupid = groupsInvited.groupid " +
+              "WHERE group_.deleted = false) " +
+              "SELECT * FROM leaderInfo NATURAL JOIN picsAndMore";
           client.query(query, [email], (err, response) => {
             if (err) printError(err, "Error retrieving group invitations");
             else {
               groups = response.rows;
+              console.log("---------------");
+              console.log("group object: ");
+              console.log(groups);
               const obj = {
                 user: user,
                 events: events,

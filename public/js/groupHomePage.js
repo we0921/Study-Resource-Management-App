@@ -37,6 +37,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
         document.getElementById("addTagButton").style.display = "none";
         document.getElementById("editGroupButton").style.display = "none";
         document.getElementById("editBoardButton").style.display = "none";
+        document.getElementById("deleteGroupButton").style.display = "none";
     }
 });
 
@@ -314,6 +315,9 @@ function createEvent (event) {
     eventAnchor.className = "list-group-item list-group-item-action";
     eventAnchor.style.width = "100%";
     eventAnchor.href = url;
+    // make every boardAnchor transparent
+    eventAnchor.style.backgroundColor = "transparent";
+    eventAnchor.style.borderRadius = "15px";
 
     let eventCard = document.createElement("div");
     eventCard.className = "d-flex w-100 justify-content-between";
@@ -322,17 +326,25 @@ function createEvent (event) {
     eventName.style.fontWeight = 600;
     console.log("event name: " + event.eventname);
     eventName.innerText = "" + event.eventname;
+    eventName.style.color = "white";
+
 
     let eventDate = document.createElement("small");
     eventDate.innerText = date;
+    eventDate.style.color = "white";
+
 
     let eventHost = document.createElement("p");
     eventHost.className = "mb-1";
     eventHost.innerText = "Host: " + event.host;
-    
+    eventHost.style.color = "white";
+
+
     let eventDesc = document.createElement("p");
     eventDesc.className = "mb-1";
     eventDesc.innerText = event.eventdesc;
+    eventDesc.style.color = "white";
+
 
     eventCard.appendChild(eventName);
     eventCard.appendChild(eventDate);
@@ -351,6 +363,10 @@ function createBoard (board) {
     boardAnchor.id = "anchor" + board.boardid;
     boardAnchor.style.width = "100%";
 
+    // make every boardAnchor transparent
+    boardAnchor.style.backgroundColor = "transparent";
+    boardAnchor.style.borderRadius = "15px";
+
     // Card that holds the info
     let boardCard = document.createElement("div");
     boardCard.className = "d-flex";
@@ -359,6 +375,8 @@ function createBoard (board) {
     let boardName = document.createElement("h5")
     boardName.innerText = board.boardname;
     boardName.id = "boardName" + board.boardid;
+    boardName.style.color = "white";
+
 
     // Hidden input for editing
     let boardNameInput = document.createElement("input");
@@ -371,6 +389,8 @@ function createBoard (board) {
     boardDesc.className = "mb-1";
     boardDesc.innerText = board.boarddesc;
     boardDesc.id = "boardDesc" + board.boardid;
+    boardDesc.style.color = "white";
+
 
     // Hidden input for editing
     let boardDescInput = document.createElement("input");

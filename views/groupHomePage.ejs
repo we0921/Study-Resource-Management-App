@@ -8,19 +8,47 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
     <link type="text/css" rel="stylesheet" href="/css/daterangepicker.css" media="screen,projection"/>
 </head>
+<style>
+    body {
+        background-color: rgb(63,94,251)!important;
+        background-image: radial-gradient(circle, rgba(63,94,251,1) 0%, rgba(252,70,107,1) 100%)!important;
+    }
+
+    #groupCard {
+        border-radius: 15px;
+        background-color: #8BC6EC!important;
+        background-image: linear-gradient(270deg, #8BC6EC 0%, #9599E2 100%)!important;
+    }
+
+    #eventCard {
+        border-radius: 15px;
+        background-color: #8BC6EC!important;
+        background-image: linear-gradient(90deg, #8BC6EC 0%, #9599E2 100%)!important;
+    }
+
+    .groupCardBody {
+        background-color: #8BC6EC!important;
+        background-image: linear-gradient(270deg, #8BC6EC 0%, #9599E2 100%)!important;
+    }
+
+    .eventCardBody {
+        background-color: #8BC6EC!important;
+        background-image: linear-gradient(90deg, #8BC6EC 0%, #9599E2 100%)!important;
+    }
+</style>
 <body>
 
 <%-include("partials/navAndSidebar")-%>
-    <h1 id = "titleheader" style="text-align: center; margin-top: 20px;"></h1>
-    <h6 id = "descheader" style="text-align: center"></h6>
+    <h1 id = "titleheader" class="display-5" style="text-align: center; margin-top: 20px; color: white;"></h1>
+    <h6 id = "descheader" class="display-6" style="text-align: center; color: white;"></h6>
     <div id="siteContainer" class="row" style="padding-top: 50px">
         <!-- Spacer to the left of Boards-->
         <div id="leftSpacer" class="col-sm-0 col-md-1 col-lg-1"> </div>
         <!--Container for Boards-->
         <div id="boardContainer" class="col-sm-12 col-md-6 col-lg-6">
             <div id="groupCard" class="card">
-                <div id="groupName" class="card-header d-flex justify-content-between">
-                    <h2>Boards</h2>
+                <div id="groupName" style="color: white;" class="card-header d-flex justify-content-between">
+                    <h2 class="display-6">Boards</h2>
                     <button id="editBoardButton" class="btn btn-dark btn-sm">
                         <i class="bi bi-pencil-square"></i>
                     </button>
@@ -31,8 +59,8 @@
         </div>
         <!--Right Event Container (visible for medium & up)-->
         <div id="eventContainer" class="col-sm-0 col-md-4 col-lg-4">
-            <div class="card">
-                <div class="card-header">
+            <div id="eventCard" class="card">
+                <div class="card-header display-6" style="color: white;">
                     Events
                 </div>
                 <div id="eventCardBody" class="card-body">
@@ -51,12 +79,12 @@
         <div id="boardButtons" class="col-sm-12 col-md-6 col-lg-6">
             <div class="d-flex justify-content-center">
                 <!-- Modal trigger buttons -->
-                <button id="createBoardButton" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#boardModal" style="margin: 5px">Create Board</button>
-                <button id="createEventButton" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#eventModal" style="margin: 5px">Create Event</button>
-                <button id="inviteUserButton" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#inviteModal" style="margin: 5px">Invite User</button>
-                <button id="addTagButton" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#tagModal" style="margin: 5px">Add Tag</button>
-                <button id="editGroupButton" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editGroupModal" style="margin: 5px">Edit Group Info</button>
-                <button id="deleteGroupButton" class="btn btn-primary" style="margin: 5px">Delete Group</button>
+                <button id="createBoardButton" class="btn btn-lg btn-outline-light" data-bs-toggle="modal" data-bs-target="#boardModal" style="margin: 5px">Create Board</button>
+                <button id="createEventButton" class="btn btn-lg btn-outline-light" data-bs-toggle="modal" data-bs-target="#eventModal" style="margin: 5px">Create Event</button>
+                <button id="inviteUserButton" class="btn btn-lg btn-outline-light" data-bs-toggle="modal" data-bs-target="#inviteModal" style="margin: 5px">Invite User</button>
+                <button id="addTagButton" class="btn btn-lg btn-outline-light" data-bs-toggle="modal" data-bs-target="#tagModal" style="margin: 5px">Add Tag</button>
+                <button id="editGroupButton" class="btn btn-lg btn-outline-light" data-bs-toggle="modal" data-bs-target="#editGroupModal" style="margin: 5px">Edit Group Info</button>
+                <button id="deleteGroupButton" class="btn btn-lg btn-outline-light" style="margin: 5px">Delete Group</button>
             </div>
         </div>
         <div id="rightButtonSpacer" class="col-sm-0 col-md-3 col-lg-3"> </div>
