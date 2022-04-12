@@ -345,6 +345,8 @@ router.post("/groupMenuPage", async (req, res) => {
 // TODO - fix create group await
 // Create a group
 router.post("/createGroup", (req, res) => {
+  console.log("In /createGroup");
+  
   // Parse the cookies
   const cookies = cookieParser(req);
 
@@ -374,6 +376,7 @@ router.post("/createGroup", (req, res) => {
         res.clearCookie("session");
         res.status(401).redirect("/");
       } else {
+        console.log("Entering createGroup() with values: " + cookies["email"] + req.body.groupName + req.body.groupDesc + (req.body.btnradio === "true") + req.body.tag + req.body.grouppic);
         await createGroup(cookies["email"], req.body.groupName, req.body.groupDesc, (req.body.btnradio === "true"), req.body.tag, req.body.grouppic, res);
       }
     }
