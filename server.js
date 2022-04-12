@@ -259,16 +259,23 @@ router.get("/groupMenuPage", async (req, res) => {
         res.clearCookie("session");
         res.status(401).redirect("/");
       } else {
-        const query =
-           " WITH groupList AS ( (SELECT groupid, groupname, groupdesc  FROM group_) EXCEPT " +
-            "(SELECT groupid, groupname, groupdesc FROM member_ NATURAL JOIN group_ WHERE email = $1 AND status = true OR deleted = true)), " +
-            "leaderInfo AS ( " +
-            "SELECT leader, first, last, count(*) as cubvotes " +
-            "FROM group_ NATURAL JOIN groupList JOIN users on group_.leader = users.email JOIN post ON post.postowner = group_.leader JOIN cubvoted ON post.postid = cubvoted.postid GROUP BY post.postowner, group_.leader, users.first, users.last), " +
-            "picsAndMore AS ( " +
-            "SELECT * " +
-            "FROM groupList LEFT JOIN grouppictures USING (groupid) ) " +
-            "SELECT * FROM leaderInfo NATURAL JOIN picsAndMore";
+        const query = "WITH groupList AS ( (SELECT groupid, groupname, groupdesc  FROM group_) EXCEPT "
+            + "(SELECT groupid, groupname, groupdesc FROM member_ NATURAL JOIN group_ WHERE email = $1 AND status = true OR deleted = true)), "
+            + "leaderInfoNonZero AS ( "
+            + "  SELECT leader, first, last, count(*) as cubvotes "
+            + "FROM group_ NATURAL JOIN groupList JOIN users on group_.leader = users.email JOIN post ON post.postowner = group_.leader JOIN cubvoted ON post.postid = cubvoted.postid GROUP BY post.postowner, group_.leader, users.first, users.last "
+            + "), "
+            + "leaderInfoZero AS ( "
+            + "  SELECT leader, first, last, 0 as cubvotes "
+            + "FROM group_ NATURAL JOIN groupList JOIN users on group_.leader = users.email "
+            + "WHERE leader NOT IN (SELECT leader from leaderInfoNonZero) "
+            + "), "
+            + "picsAndMore AS ( "
+            + "SELECT * "
+            + "FROM groupList LEFT JOIN grouppictures USING (groupid) ) "
+            + "SELECT * FROM leaderInfoNonZero NATURAL JOIN picsAndMore "
+            + "UNION "
+            + "SELECT * FROM leaderInfoZero NATURAL JOIN picsAndMore;";
 
         client.query(query, [cookies["email"]], (err, response) => {
           if (err){
