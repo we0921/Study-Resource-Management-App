@@ -130,7 +130,7 @@ router.get("/home", async (req, res) => {
             // getting the groups they are a part of
             query =
                 "WITH groupsInvited AS ( "
-              + "  SELECT * FROM member_ WHERE email = 'cdm5698@psu.edu' AND status = true "
+              + "  SELECT * FROM member_ WHERE email = $1 AND status = true "
               + "), "
               + "leaderInfoNonZero AS ( "
               + "  SELECT leader, first, last, count(*) as cubvotes "
