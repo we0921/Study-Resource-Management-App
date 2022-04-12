@@ -2182,6 +2182,7 @@ async function createGroup(leader, name, desc, isPrivate, tag, pic, res) {
       printError(err, "Error creating group (001)");
       created = false;
     } else {
+      console.log("Inserted into group table");
       // insert user into the member table
       const query = "INSERT INTO member_(email, groupid, status, joindate, invitedate) VALUES($1, $2, $3, $4, $5)";
       const values = [leader, groupid, true, new Date, new Date];
@@ -2192,6 +2193,7 @@ async function createGroup(leader, name, desc, isPrivate, tag, pic, res) {
           created = false;
           // Successful member insertion
         } else {
+          console.log("Inserted into member table");
           created = true;
           // insert group and tag into grouptags
           const query = "INSERT INTO grouptags (groupid, tagname) VALUES ($1, $2)";
@@ -2202,6 +2204,7 @@ async function createGroup(leader, name, desc, isPrivate, tag, pic, res) {
               created = false;
             }
             else {
+              console.log("Inserted into tags");
               if (pic !== "") {
                 // insert group photo url into grouppics
                 const query = "INSERT INTO grouppicture (groupid, pic) VALUES ($1, $2)";
@@ -2215,11 +2218,16 @@ async function createGroup(leader, name, desc, isPrivate, tag, pic, res) {
                   }
                   if (!created) {
                     // TODO add await deleteGroup
+                    console.log("Group created unsuccessfully!!!!");
                     res.status(503).redirect("/home");
                   } else {
+                    console.log("Group created successfully WITH picture");
                     res.status(200).redirect("/groupPage/" + groupid);
                   }
                 });
+              } else {
+                console.log("Group created successfully WITHOUT picture");
+                res.status(200).redirect("/groupPage/" + groupid);
               }
             }
           });
