@@ -96,7 +96,7 @@
   <% let counter = 0;%>
   <% let rowClosed; %>
   <% groups.forEach((group) => { %>
-    <% if (group.tags[0] != "Course") return;%>
+    <% if (group.tagname != "Course") return;%>
     <%# if we hit a 4th? item, create a new row  %>
     <% if (counter % 3 == 0) { %>
     <section class="wrapper">
@@ -114,7 +114,7 @@
                   <img class="card-img d-none" src="" alt="Goverment Lorem Ipsum Sit Amet Consectetur dipisi?">
                   <div class="card-img-overlay d-flex flex-column">
                     <div class="card-body">
-                      <small class="card-meta mb-2"><%=group.tags[0]%></small>
+                      <small class="card-meta mb-2"><%=group.tagname%></small>
                       <h4 class="card-title mt-0 "><a class="text-white" herf="#"><%=group.groupname%></a></h4>
                       <small><i class="far fa-clock"></i><%=group.groupdesc%> </small>
                     </div>
@@ -149,7 +149,7 @@
   <% counter = 0;%>
   <% rowClosed = false; %>
   <% groups.forEach((group) => { %>
-    <% if (group.tags[0]!= "Extracurricular") return;%>
+    <% if (group.tagname != "Extracurricular") return;%>
     <%# if we hit a 4th? item, create a new row  %>
     <% if (counter % 3 == 0) { %>
     <section class="wrapper">
@@ -167,7 +167,7 @@
                   <img class="card-img d-none" src="" alt="Goverment Lorem Ipsum Sit Amet Consectetur dipisi?">
                   <div class="card-img-overlay d-flex flex-column">
                     <div class="card-body">
-                      <small class="card-meta mb-2"><%=group.tags[0]%></small>
+                      <small class="card-meta mb-2"><%=group.tagname%></small>
                       <h4 class="card-title mt-0 "><a class="text-white" herf="#"><%=group.groupname%></a></h4>
                       <small><i class="far fa-clock"></i><%=group.groupdesc%> </small>
                     </div>
@@ -202,7 +202,7 @@
   <% counter = 0;%>
   <% rowClosed = false; %>
   <% groups.forEach((group) => { %>
-    <% if (group.tags[0]!= "Other") return;%>
+    <% if (group.tagname != "Other") return;%>
     <%# if we hit a 4th? item, create a new row  %>
     <% if (counter % 4 == 0) { %>
     <section class="wrapper">
@@ -222,7 +222,7 @@
                   <img class="card-img d-none" src="" alt="Goverment Lorem Ipsum Sit Amet Consectetur dipisi?">
                   <div class="card-img-overlay d-flex flex-column">
                     <div class="card-body">
-                      <small class="card-meta mb-2"><%=group.tags[0]%></small>
+                      <small class="card-meta mb-2"><%=group.tagname%></small>
                       <h4 class="card-title mt-0 "><a class="text-white" herf="#"><%=group.groupname%></a></h4>
                       <small><i class="far fa-clock"></i><%=group.groupdesc%> </small>
                     </div>
