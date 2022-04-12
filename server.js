@@ -1845,6 +1845,8 @@ async function register(req, res) {
 
 // [DONE] Parses cookies in the header of the req
 function cookieParser(req) {
+  console.log(req.headers);
+  console.log(req.headers.cookie);
   let rawCookies = req.headers.cookie.split('; ');
   let parsedCookies = {};
   rawCookies.forEach(rc => {
