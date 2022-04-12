@@ -259,8 +259,8 @@ router.get("/groupMenuPage", async (req, res) => {
         res.clearCookie("session");
         res.status(401).redirect("/");
       } else {
-        const query = "WITH groupList AS ( (SELECT groupid, groupname, groupdesc  FROM group_) EXCEPT "
-            + "(SELECT groupid, groupname, groupdesc FROM member_ NATURAL JOIN group_ WHERE email = $1 AND status = true OR deleted = true)), "
+        const query = "WITH groupList AS ( (SELECT groupid, groupname, groupdesc, tagname FROM group_) EXCEPT "
+            + "(SELECT groupid, groupname, groupdesc, tagname FROM member_ NATURAL JOIN group_ WHERE email = $1 AND status = true OR deleted = true)), "
             + "leaderInfoNonZero AS ( "
             + "  SELECT leader, first, last, count(*) as cubvotes "
             + "FROM group_ NATURAL JOIN groupList JOIN users on group_.leader = users.email JOIN post ON post.postowner = group_.leader JOIN cubvoted ON post.postid = cubvoted.postid GROUP BY post.postowner, group_.leader, users.first, users.last "
@@ -1286,7 +1286,7 @@ router.post("/editGroup", async (req, res) => {
                     res.status(503).send("Error updating group information!");
                   } else {
                     if (req.body.url !== "") {
-                      const query = "UPDATE grouppics "
+                      const query = "UPDATE grouppictures "
                           + "SET pic = $1 "
                           + "WHERE groupid = $2;"
                       const values = [req.body.url, req.body.groupID];
