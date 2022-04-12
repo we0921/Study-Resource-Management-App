@@ -2173,8 +2173,8 @@ async function createGroup(leader, name, desc, isPrivate, tag, pic, res) {
   let created = false;
 
   // Create the group in the database
-  const query = "INSERT INTO group_(groupid, leader, groupname, groupdesc, private) VALUES($1, $2, $3, $4, $5)";
-  const values = [groupid, leader, name, desc, isPrivate];
+  const query = "INSERT INTO group_(groupid, leader, groupname, groupdesc, private, tagname, deleted) VALUES($1, $2, $3, $4, $5, $6, false)";
+  const values = [groupid, leader, name, desc, isPrivate, tag];
 
   client.query(query, values, (err, response) => {
     // If the group isn't successfully made
@@ -2196,15 +2196,15 @@ async function createGroup(leader, name, desc, isPrivate, tag, pic, res) {
           console.log("Inserted into member table");
           created = true;
           // insert group and tag into grouptags
-          const query = "INSERT INTO grouptags (groupid, tagname) VALUES ($1, $2)";
-          const values = [groupid, tag];
-          client.query(query, values, (err, response) => {
-            if (err) {
-              printError(err, "Error inserting tag to list (004)");
-              created = false;
-            }
-            else {
-              console.log("Inserted into tags");
+          //const query = "INSERT INTO grouptags (groupid, tagname) VALUES ($1, $2)";
+          //const values = [groupid, tag];
+          //client.query(query, values, (err, response) => {
+          //  if (err) {
+          //    printError(err, "Error inserting tag to list (004)");
+          //    created = false;
+          //  }
+          //  else {
+          //    console.log("Inserted into tags");
               if (pic !== "") {
                 // insert group photo url into grouppics
                 const query = "INSERT INTO grouppicture (groupid, pic) VALUES ($1, $2)";
@@ -2229,8 +2229,8 @@ async function createGroup(leader, name, desc, isPrivate, tag, pic, res) {
                 console.log("Group created successfully WITHOUT picture");
                 res.status(200).redirect("/groupPage/" + groupid);
               }
-            }
-          });
+            //}
+          //});
         }
       });
     }
