@@ -1787,8 +1787,8 @@ async function login(req, res) {
         console.log("VALID CREDENTIALS");
         // User exists in the database
         // => Delete any sessions with the current IP address
-        const query = "DELETE FROM session WHERE ip = $1 AND email = $2";
-        const values = [ip, loginEmail];
+        const query = "DELETE FROM session WHERE email = $1";
+        const values = [loginEmail];
 
         client.query(query, values, async (err, response) => {
           if (err) {
@@ -1797,7 +1797,7 @@ async function login(req, res) {
             // Create a new session for this login
             let sessionID = await uid(18).then((e) => {
               return e;
-            });
+            });           
 
             const query = "INSERT INTO session VALUES($1, $2, $3, to_timestamp($4), to_timestamp($5))";
             const values = [ip, sessionID, loginEmail, (Date.now() / 1000), (Date.now() / 1000) + 1209600];
