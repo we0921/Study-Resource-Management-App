@@ -1060,6 +1060,8 @@ router.get("/eventHomePage/:eventID", async (req, res) => {
                     + "SELECT first, last, bio, 0 as cubvotes "
                     + "FROM users natural join attendees "
                     + "WHERE email NOT IN (SELECT email from scores)";
+                
+                console.log("event ID: " + req.params["eventID"]);
 
                 client.query(query, [req.params["eventID"]], (err, response) => {
                   if (err) printError(err, "Error retrieving attendees")
