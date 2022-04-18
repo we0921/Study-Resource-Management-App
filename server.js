@@ -1053,7 +1053,7 @@ router.get("/eventHomePage/:eventID", async (req, res) => {
                     + "scores AS ( "
                     + "SELECT postowner as email, COUNT(*) AS cubvotes "
                     + "FROM cubvoted natural join post "
-                    + "GROUP BY postowner), "
+                    + "GROUP BY postowner) "
                     + "SELECT first, last, bio, cubvotes "
                     + "FROM users natural join attendees natural join scores ";
                     + "UNION "
