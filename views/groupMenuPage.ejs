@@ -264,11 +264,11 @@
       method: 'POST',
       url: '/groupMenuPage',
       data: {
-        groupID: document.getElementById("groupID").value,
+        groupID: group,
       },
       success: function () {
         console.log("Successfully joined group");
-        window.location.href = "/groupPage/" + document.getElementById("groupID").value;
+        window.location.href = "/groupPage/" + group;
       },
       error: function() {
         console.log("Couldn't join group!");
