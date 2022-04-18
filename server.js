@@ -1048,13 +1048,13 @@ router.get("/eventHomePage/:eventID", async (req, res) => {
                 host.cubvotes = response.rows[0].cubvotes;
                 // get the attendees
                 // get the event info and the list of attendees, both accepted and non accepted
-                const query = "WITH attendees AS ("
+                const query = "WITH attendees AS ( "
                     + "SELECT email FROM attend WHERE eventid = $1 AND attending = true), "
-                    + "scores AS ("
+                    + "scores AS ( "
                     + "SELECT postowner as email, COUNT(*) AS cubvotes "
                     + "FROM cubvoted natural join post "
                     + "GROUP BY postowner), "
-                    + "zeroScores AS ("
+                    + "zeroScores AS ( "
                     + "SELECT postowner as email, 0 as cubvotes "
                     + "FROM attendees "
                     + "WHERE email NOT IN (SELECT email from scores) "
@@ -2508,7 +2508,7 @@ function showInvites(email, res) {
           console.log(events);
           // getting the groups they have been invited to // can change
           const query =
-              "WITH groupsInvited AS (" +
+              "WITH groupsInvited AS ( " +
               "SELECT * FROM member_ WHERE email = $1 AND status = false), " +
               "leaderInfoNonZero AS ( " +
               "SELECT leader, first, last, count(*) as cubvotes " +
