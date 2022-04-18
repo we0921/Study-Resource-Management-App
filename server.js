@@ -1054,15 +1054,12 @@ router.get("/eventHomePage/:eventID", async (req, res) => {
                     + "SELECT postowner as email, COUNT(*) AS cubvotes "
                     + "FROM cubvoted natural join post "
                     + "GROUP BY postowner), "
-                    + "zeroScores AS ( "
-                    + "SELECT email, 0 as cubvotes "
-                    + "FROM attendees "
-                    + "WHERE email NOT IN (SELECT email from scores) "
                     + "SELECT first, last, bio, cubvotes "
                     + "FROM users natural join attendees natural join scores ";
                     + "UNION "
-                    + "SELECT first, last, bio, cubvotes "
-                    + "FROM users natural join attendees natural join zeroScores;";
+                    + "SELECT first, last, bio, 0 as cubvotes "
+                    + "FROM users natural join attendees "
+                    + "WHERE email NOT IN (SELECT email from scores)";
 
                 client.query(query, [req.params["eventID"]], (err, response) => {
                   if (err) printError(err, "Error retrieving attendees")
