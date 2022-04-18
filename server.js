@@ -2504,14 +2504,21 @@ function showInvites(email, res) {
           const query =
               "WITH groupsInvited AS (" +
               "SELECT * FROM member_ WHERE email = $1 AND status = false), " +
-              "leaderInfo AS ( " +
+              "leaderInfoNonZero AS ( " +
               "SELECT leader, first, last, count(*) as cubvotes " +
               "FROM group_ NATURAL JOIN groupsInvited JOIN users on group_.leader = users.email JOIN post ON post.postowner = group_.leader JOIN cubvoted ON post.postid = cubvoted.postid GROUP BY post.postowner, group_.leader, users.first, users.last), " +
+              "leaderInfoZero AS ( " +
+              "SELECT leader, first, last, 0 as cubvotes " +
+              "FROM group_ NATURAL JOIN groupsInvited JOIN users on group_.leader = users.email " +
+              "WHERE leader NOT IN (SELECT leader from leaderInfoNonZero) " +
+              "), " + 
               "picsAndMore AS ( " +
               "SELECT * " +
               "FROM group_ LEFT JOIN grouppictures USING (groupid) JOIN groupsInvited ON group_.groupid = groupsInvited.groupid " +
               "WHERE group_.deleted = false) " +
-              "SELECT * FROM leaderInfo NATURAL JOIN picsAndMore";
+              "SELECT * FROM leaderInfoNonZero NATURAL JOIN picsAndMore " +
+              "UNION " +
+              "SELECT * FROM leaderInfoZero NATURAL JOIN picsAndMore ";
           client.query(query, [email], (err, response) => {
             if (err) printError(err, "Error retrieving group invitations");
             else {
