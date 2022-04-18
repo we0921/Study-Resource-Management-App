@@ -1064,6 +1064,8 @@ router.get("/eventHomePage/:eventID", async (req, res) => {
                 client.query(query, [req.params["eventID"]], (err, response) => {
                   if (err) printError(err, "Error retrieving attendees")
                   else {
+                    console.log("attendees: ");
+                    response.rows.forEach(r => console.log(r));
                     attendees = response.rows;
 
                     // get the list of people not invited, who belong to the group, in order to invite them
