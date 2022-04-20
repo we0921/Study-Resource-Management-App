@@ -1055,7 +1055,7 @@ router.get("/eventHomePage/:eventID", async (req, res) => {
                     + "FROM cubvoted natural join post "
                     + "GROUP BY postowner) "
                     + "SELECT first, last, bio, cubvotes "
-                    + "FROM users natural join attendees natural join scores ";
+                    + "FROM users natural join attendees natural join scores "
                     + "UNION "
                     + "SELECT first, last, bio, 0 as cubvotes "
                     + "FROM users natural join attendees "
