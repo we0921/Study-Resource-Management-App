@@ -9,14 +9,19 @@
 </style>
 <nav class="navbar navbar-expand-lg navbar-light" style="background-color: transparent;">
     <div class="container-fluid">
-        <div class="d-flex justify-content-start">
-            <!-- side bar toggler -->
-            <button class="btn float-end" data-bs-toggle="offcanvas" data-bs-target="#offcanvas" role="button">
-                <i class="bi bi-list" style="color:#e8e8e8" data-bs-toggle="offcanvas" data-bs-target="#offcanvas"></i>
+        <div class="d-flex justify-content-between">
+            <div>
+                <!-- side bar toggler -->
+                <button class="btn float-end" data-bs-toggle="offcanvas" data-bs-target="#offcanvas" role="button">
+                    <i class="bi bi-list" style="color:#e8e8e8" data-bs-toggle="offcanvas" data-bs-target="#offcanvas"></i>
+                </button>
+                <a class="display-4 navbar-brand" href="/home" style="color: white;">
+                    Home
+                </a>
+            </div>
+            <button class="btn btn-outline-light" onclick="logout()">
+                <i class="bi bi-door-open-fill"></i>
             </button>
-            <a class="display-4 navbar-brand" href="/home" style="color: white;">
-                Home
-            </a>
         </div>
     </div>
 </nav>
@@ -47,4 +52,15 @@
         </ul>
     </div>
 </div>
+<script>
+    function logout() {
+    var allCookies = document.cookie.split(';');
+    // The "expire" attribute of every cookie is 
+    // Set to "Thu, 01 Jan 1970 00:00:00 GMT"
+    for (var i = 0; i < allCookies.length; i++)
+        document.cookie = allCookies[i] + "=;expires=" + new Date(0).toUTCString();
+        
+        window.location.href = "/login";
+    }
+</script>
 <!-- End side & navbar -->
