@@ -122,12 +122,11 @@ function login() {
         loginEmail: login,
         loginPassword: password
       },
-      success: function () {
-        
-      },
-      error: function() {
-        console.log("Help");
-        alert("Login failed");
+      statusCode: {
+        401: function () {
+          console.log("Help");
+          alert("Login failed");
+        }
       }
     });
 }
