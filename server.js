@@ -1786,6 +1786,7 @@ async function login(req, res) {
     } else {
       // If the given credentials don't exist in the database
       if (response.rows.length === 0) {
+        console.log("Invalid login");
         let login_reg_status = {
           status: "login-fail"
         };
