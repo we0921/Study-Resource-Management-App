@@ -33,8 +33,6 @@
 </style>
 <body>
 
-<button style="position: fixed; bottom: 10%; right: 5%; z-index:100" data-bs-toggle="modal" data-bs-target="#messageModal" class="btn btn-lg btn-success">Send a Message</button>
-
 <%-include("partials/navAndSidebar")-%>
 
     <h1 id = "titleheader" class="display-5" style="text-align: center; margin-top: 20px; color: white;"></h1>
@@ -71,16 +69,7 @@
         <div id="rightSpacer" class="col-sm-0 col-md-1 col-lg-1"> </div>
     </div>
 
-    <!--Button container -->
-    <div id="buttonContainer" class="row">
-        <div id="leftButtonSpacer" class="col-sm-0 col-md-3 col-lg-4"> </div>
-        <div id="boardButtons" class="col-sm-12 col-md-6 col-lg-4">
-            <button type="button" class="btn btn-primary">Create Board</button>
-            <button type="button" class="btn btn-primary">Invite User</button>
-            <button type="button" class="btn btn-primary">Edit Board Info</button>
-        </div>
-        <div id="rightButtonSpacer" class="col-sm-0 col-md-3 col-lg-4"> </div>
-    </div>
+    
     <div style = "display: none" id = "data"> <%=data %></div>
     <script type="text/javascript" src="/js/groupBoardPage.js"></script>
     <script type="text/javascript" src="/js/jquery-3.6.0.min.js"></script>
