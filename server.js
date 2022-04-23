@@ -1789,7 +1789,7 @@ async function login(req, res) {
         let login_reg_status = {
           status: "login-fail"
         };
-        res.status(401).json({status: login_reg_status});
+        res.status(401).json({});
       } else {
         console.log("VALID CREDENTIALS");
         // User exists in the database
